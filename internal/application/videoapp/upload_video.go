@@ -3,9 +3,9 @@ package videoapp
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/google/uuid"
+	"github.com/st-ember/streaming-api/internal/application/ports/log"
 	"github.com/st-ember/streaming-api/internal/application/ports/repo"
 	"github.com/st-ember/streaming-api/internal/application/ports/storage"
 	"github.com/st-ember/streaming-api/internal/domain/job"
@@ -15,15 +15,18 @@ import (
 type UploadVideoUsecase struct {
 	assetStorer storage.AssetStorer
 	uowFactory  repo.UnitOfWorkFactory
+	logger      log.Logger
 }
 
 func NewUploadVideoUsecase(
 	assetStorer storage.AssetStorer,
 	uow repo.UnitOfWorkFactory,
+	logger log.Logger,
 ) *UploadVideoUsecase {
 	return &UploadVideoUsecase{
 		assetStorer,
 		uow,
+		logger,
 	}
 }
 
@@ -39,7 +42,7 @@ func (u *UploadVideoUsecase) Execute(ctx context.Context, input UploadVideoInput
 	defer func() {
 		if err != nil {
 			if cleanupErr := u.assetStorer.DeleteAll(ctx, resourceID); cleanupErr != nil {
-				log.Printf("Failed to clean up: %v", cleanupErr)
+				u.logger.Errorf("Failed to clean up: %v", cleanupErr)
 			}
 		}
 	}()

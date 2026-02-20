@@ -5,6 +5,7 @@ import (
 	"strings"
 	"testing"
 
+	logMocks "github.com/st-ember/streaming-api/internal/application/ports/log/mocks"
 	repoMocks "github.com/st-ember/streaming-api/internal/application/ports/repo/mocks"
 	storageMocks "github.com/st-ember/streaming-api/internal/application/ports/storage/mocks"
 	"github.com/stretchr/testify/mock"
@@ -20,6 +21,7 @@ func TestUploadVideo_SuccessCase(t *testing.T) {
 	mockJobRepo := repoMocks.NewMockJobRepo(t)
 	mockUow := repoMocks.NewMockUnitOfWork(t)
 	mockUowFactory := repoMocks.NewMockUnitOfWorkFactory(t)
+	mockLogger := logMocks.NewMockLogger(t)
 
 	// AssetStorer expectations
 	mockAsssetStorer.EXPECT().
@@ -52,7 +54,7 @@ func TestUploadVideo_SuccessCase(t *testing.T) {
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory)
+	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -68,6 +70,7 @@ func TestUploadVideo_AssetStorerSaveFail(t *testing.T) {
 	// Set up mocks
 	mockAsssetStorer := storageMocks.NewMockAssetStorer(t)
 	mockUowFactory := repoMocks.NewMockUnitOfWorkFactory(t)
+	mockLogger := logMocks.NewMockLogger(t)
 
 	// Expect AssetStorer Save to return error
 	expectedErr := errors.New("path not found")
@@ -84,7 +87,7 @@ func TestUploadVideo_AssetStorerSaveFail(t *testing.T) {
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory)
+	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -102,6 +105,7 @@ func TestUploadVideo_UOWFactoryReturnsError(t *testing.T) {
 	mockAsssetStorer := storageMocks.NewMockAssetStorer(t)
 	mockUow := repoMocks.NewMockUnitOfWork(t)
 	mockUowFactory := repoMocks.NewMockUnitOfWorkFactory(t)
+	mockLogger := logMocks.NewMockLogger(t)
 
 	// AssetStorer expectations
 	mockAsssetStorer.EXPECT().
@@ -127,7 +131,7 @@ func TestUploadVideo_UOWFactoryReturnsError(t *testing.T) {
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory)
+	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -147,6 +151,7 @@ func TestUploadVideo_VideoRepoSaveFail(t *testing.T) {
 	mockJobRepo := repoMocks.NewMockJobRepo(t)
 	mockUow := repoMocks.NewMockUnitOfWork(t)
 	mockUowFactory := repoMocks.NewMockUnitOfWorkFactory(t)
+	mockLogger := logMocks.NewMockLogger(t)
 
 	// AssetStorer expectations
 	mockAsssetStorer.EXPECT().
@@ -183,7 +188,7 @@ func TestUploadVideo_VideoRepoSaveFail(t *testing.T) {
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory)
+	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -203,6 +208,7 @@ func TestUploadVideo_JobRepoSaveFail(t *testing.T) {
 	mockJobRepo := repoMocks.NewMockJobRepo(t)
 	mockUow := repoMocks.NewMockUnitOfWork(t)
 	mockUowFactory := repoMocks.NewMockUnitOfWorkFactory(t)
+	mockLogger := logMocks.NewMockLogger(t)
 
 	// AssetStorer expectations
 	mockAsssetStorer.EXPECT().
@@ -241,7 +247,7 @@ func TestUploadVideo_JobRepoSaveFail(t *testing.T) {
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory)
+	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -261,6 +267,7 @@ func TestUploadVideo_UOWCommitFail(t *testing.T) {
 	mockJobRepo := repoMocks.NewMockJobRepo(t)
 	mockUow := repoMocks.NewMockUnitOfWork(t)
 	mockUowFactory := repoMocks.NewMockUnitOfWorkFactory(t)
+	mockLogger := logMocks.NewMockLogger(t)
 
 	// AssetStorer expectations
 	mockAsssetStorer.EXPECT().
@@ -298,7 +305,7 @@ func TestUploadVideo_UOWCommitFail(t *testing.T) {
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory)
+	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -306,5 +313,66 @@ func TestUploadVideo_UOWCommitFail(t *testing.T) {
 	// --- Assert ---
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
+	require.Nil(t, resp)
+}
+
+func TestUploadVideo_CleanupFailsAfterRepoSaveFails(t *testing.T) {
+	t.Parallel()
+
+	// Set up mocks
+	mockAsssetStorer := storageMocks.NewMockAssetStorer(t)
+	mockVideoRepo := repoMocks.NewMockVideoRepo(t)
+	mockJobRepo := repoMocks.NewMockJobRepo(t)
+	mockUow := repoMocks.NewMockUnitOfWork(t)
+	mockUowFactory := repoMocks.NewMockUnitOfWorkFactory(t)
+	mockLogger := logMocks.NewMockLogger(t)
+
+	dbErr := errors.New("database is down")
+	cleanupErr := errors.New("s3 access denied")
+
+	// AssetStorer expectations
+	mockAsssetStorer.EXPECT().
+		Save(mock.Anything, mock.AnythingOfType("string"), mock.AnythingOfType("string"), mock.AnythingOfType("*strings.Reader")).
+		Return(nil).
+		Once()
+	mockAsssetStorer.EXPECT().
+		DeleteAll(mock.Anything, mock.AnythingOfType("string")).
+		Return(cleanupErr)
+
+	// Unit of Work Factory expectations
+	mockUowFactory.EXPECT().
+		NewUnitOfWork(mock.Anything).
+		Return(mockUow, nil).
+		Once()
+
+	// Unit of Work expectations
+	mockUow.EXPECT().VideoRepo().Return(mockVideoRepo)
+	mockUow.EXPECT().JobRepo().Return(mockJobRepo)
+
+	mockUow.EXPECT().Rollback(mock.Anything).Return(nil) // will not run but expected due to defer func
+
+	// Repo expectations
+	mockVideoRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*video.Video")).Return(nil).Once()
+	mockJobRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*job.Job")).Return(dbErr).Once()
+
+	// Logger expectations
+	mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
+
+	// Mock input
+	input := UploadVideoInput{
+		Title:        "My Test Video",
+		Description:  "A video for testing.",
+		FileName:     "test.mp4",
+		VideoContent: strings.NewReader("fake video data"),
+	}
+	// Create usecase
+	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
+
+	// Execute usecase
+	resp, err := usecase.Execute(t.Context(), input)
+
+	// --- Assert ---
+	require.Error(t, err)
+	require.ErrorIs(t, err, dbErr)
 	require.Nil(t, resp)
 }

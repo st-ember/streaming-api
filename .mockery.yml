@@ -19,3 +19,6 @@ packages:
   github.com/st-ember/streaming-api/internal/application/ports/storage:
     config:
       all: true
+  github.com/st-ember/streaming-api/internal/application/ports/log:
+    config:
+      all: true
