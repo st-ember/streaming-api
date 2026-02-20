@@ -8,4 +8,5 @@ import (
 
 type JobRepo interface {
 	Save(ctx context.Context, job *job.Job) error
+	FindNextPendingTranscodeJob(ctx context.Context) (*job.Job, error)
 }

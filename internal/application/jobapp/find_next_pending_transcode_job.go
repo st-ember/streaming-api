@@ -1,0 +1,20 @@
+package jobapp
+
+import (
+	"context"
+
+	"github.com/st-ember/streaming-api/internal/application/ports/repo"
+	"github.com/st-ember/streaming-api/internal/domain/job"
+)
+
+type FindNextPendingTranscodeJobUsecase struct {
+	jobRepo repo.JobRepo
+}
+
+func NewFindNextPendingTranscodeJobUsecase(jobRepo repo.JobRepo) *FindNextPendingTranscodeJobUsecase {
+	return &FindNextPendingTranscodeJobUsecase{jobRepo}
+}
+
+func (u *FindNextPendingTranscodeJobUsecase) Execute(ctx context.Context) (*job.Job, error) {
+	return u.jobRepo.FindNextPendingTranscodeJob(ctx)
+}
