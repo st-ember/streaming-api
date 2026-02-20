@@ -49,7 +49,7 @@ func (u *UploadVideoUsecase) Execute(ctx context.Context, input UploadVideoInput
 
 	// create video entity
 	videoID := uuid.NewString()
-	v, err := video.NewVideo(videoID, input.Title, input.Description, resourceID)
+	v, err := video.NewVideo(videoID, input.Title, input.Description, input.FileName, resourceID)
 	if err != nil {
 		return nil, fmt.Errorf("create new video %s: %w", videoID, err)
 	}

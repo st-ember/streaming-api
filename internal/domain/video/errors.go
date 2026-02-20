@@ -4,6 +4,7 @@ import "errors"
 
 var (
 	ErrVideoIDEmpty               = errors.New("video id cannot be empty")
+	ErrFilenameEmpty              = errors.New("file name cannot be empty")
 	ErrResourceIDEmpty            = errors.New("resource id cannot be empty")
 	ErrCannotBeMarkedAsProcessing = errors.New("video cannot be marked as processing")
 	ErrCannotBeMarkedAsFailed     = errors.New("video cannot be marked as failed")

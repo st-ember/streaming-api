@@ -7,15 +7,20 @@ type Video struct {
 	Title       string
 	Description string
 	Duration    time.Duration
+	Filename    string
 	ResourceID  string
 	Status      VideoStatus
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
 
-func NewVideo(id, title, description, resourceID string) (*Video, error) {
+func NewVideo(id, title, description, filename, resourceID string) (*Video, error) {
 	if id == "" {
 		return nil, ErrVideoIDEmpty
+	}
+
+	if filename == "" {
+		return nil, ErrFilenameEmpty
 	}
 
 	if resourceID == "" {
@@ -26,6 +31,7 @@ func NewVideo(id, title, description, resourceID string) (*Video, error) {
 		ID:          id,
 		Title:       title,
 		Description: description,
+		Filename:    filename,
 		ResourceID:  resourceID,
 		Status:      StatusPending,
 		CreatedAt:   time.Now().UTC(),
