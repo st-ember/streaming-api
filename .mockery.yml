@@ -1,0 +1,21 @@
+all: false
+dir: "{{.InterfaceDir}}/mocks"
+filename: "{{.InterfaceName}}.go"
+force-file-write: true
+formatter: goimports
+generate: true
+include-auto-generated: false
+log-level: info
+structname: "{{.Mock}}{{.InterfaceName}}"
+pkgname: "{{.SrcPackageName}}"
+recursive: false
+require-template-schema-exists: true
+template: testify
+template-schema: "{{.Template}}.schema.json"
+packages:
+  github.com/st-ember/streaming-api/internal/application/ports/repo:
+    config:
+      all: true
+  github.com/st-ember/streaming-api/internal/application/ports/storage:
+    config:
+      all: true
