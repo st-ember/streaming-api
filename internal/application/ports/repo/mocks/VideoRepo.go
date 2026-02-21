@@ -38,6 +38,74 @@ func (_m *MockVideoRepo) EXPECT() *MockVideoRepo_Expecter {
 	return &MockVideoRepo_Expecter{mock: &_m.Mock}
 }
 
+// FindByID provides a mock function for the type MockVideoRepo
+func (_mock *MockVideoRepo) FindByID(ctx context.Context, id string) (*video.Video, error) {
+	ret := _mock.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FindByID")
+	}
+
+	var r0 *video.Video
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) (*video.Video, error)); ok {
+		return returnFunc(ctx, id)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string) *video.Video); ok {
+		r0 = returnFunc(ctx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*video.Video)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = returnFunc(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockVideoRepo_FindByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FindByID'
+type MockVideoRepo_FindByID_Call struct {
+	*mock.Call
+}
+
+// FindByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id string
+func (_e *MockVideoRepo_Expecter) FindByID(ctx interface{}, id interface{}) *MockVideoRepo_FindByID_Call {
+	return &MockVideoRepo_FindByID_Call{Call: _e.mock.On("FindByID", ctx, id)}
+}
+
+func (_c *MockVideoRepo_FindByID_Call) Run(run func(ctx context.Context, id string)) *MockVideoRepo_FindByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockVideoRepo_FindByID_Call) Return(video1 *video.Video, err error) *MockVideoRepo_FindByID_Call {
+	_c.Call.Return(video1, err)
+	return _c
+}
+
+func (_c *MockVideoRepo_FindByID_Call) RunAndReturn(run func(ctx context.Context, id string) (*video.Video, error)) *MockVideoRepo_FindByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Save provides a mock function for the type MockVideoRepo
 func (_mock *MockVideoRepo) Save(ctx context.Context, video1 *video.Video) error {
 	ret := _mock.Called(ctx, video1)
