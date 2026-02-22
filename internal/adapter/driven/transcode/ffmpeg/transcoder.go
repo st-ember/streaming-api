@@ -6,20 +6,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
+
 	"path/filepath"
 	"strconv"
 	"time"
 
+	"github.com/st-ember/streaming-api/internal/application/ports/exec"
 	"github.com/st-ember/streaming-api/internal/application/ports/transcode"
 )
 
 type FFMPEGTranscoder struct {
-	basePath string
+	basePath  string
+	commander exec.Commander
 }
 
-func NewFFMPEGTranscoder(basePath string) *FFMPEGTranscoder {
-	return &FFMPEGTranscoder{basePath}
+func NewFFMPEGTranscoder(basePath string, commander exec.Commander) *FFMPEGTranscoder {
+	return &FFMPEGTranscoder{basePath, commander}
 }
 
 // probeResult is used to unmarshal the json result from ffprobe
@@ -37,10 +39,10 @@ func (t *FFMPEGTranscoder) getDuration(ctx context.Context, sourcePath string) (
 		"-show_format", sourcePath,
 	}
 
-	cmd := exec.CommandContext(ctx, "ffprobe", args...)
+	cmd := t.commander.CommandContext(ctx, "ffprobe", args...)
 	var out bytes.Buffer
-	cmd.Stdout = &out      // Pipe to out var for access
-	cmd.Stderr = os.Stderr // Pipe ffprobe errors to standard error for visibility
+	cmd.SetStdout(&out)      // Pipe to out var for access
+	cmd.SetStderr(os.Stderr) // Pipe ffprobe errors to standard error for visibility
 
 	// Run ffprobe
 	if err := cmd.Run(); err != nil {
@@ -98,11 +100,11 @@ func (t *FFMPEGTranscoder) Transcode(ctx context.Context, resourceID, sourceFile
 	}
 
 	// Build command
-	cmd := exec.CommandContext(ctx, "ffmpeg", args...)
+	cmd := t.commander.CommandContext(ctx, "ffmpeg", args...)
 
 	// Capture standard errors to track progress and error details from ffmpeg
 	var stdErr bytes.Buffer
-	cmd.Stderr = &stdErr
+	cmd.SetStderr(&stdErr)
 
 	// Execute command
 	if err := cmd.Run(); err != nil {
