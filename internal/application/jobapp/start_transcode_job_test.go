@@ -1,7 +1,6 @@
 package jobapp
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -40,7 +39,7 @@ func TestStartTranscodeJob_SuccessCase(t *testing.T) {
 
 	// --- ACT ---
 	usecase := NewStartTranscodeJobUsecase(mockUowFactory)
-	resp, err := usecase.Execute(context.Background(), startJob)
+	resp, err := usecase.Execute(t.Context(), startJob)
 
 	// --- ASSERT ---
 	require.NoError(t, err)
@@ -61,7 +60,7 @@ func TestStartTranscodeJob_FailsOnUOWCreation(t *testing.T) {
 	mockUowFactory.EXPECT().NewUnitOfWork(mock.Anything).Return(nil, expectedErr).Once()
 
 	usecase := NewStartTranscodeJobUsecase(mockUowFactory)
-	_, err := usecase.Execute(context.Background(), startJob)
+	_, err := usecase.Execute(t.Context(), startJob)
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
@@ -83,7 +82,7 @@ func TestStartTranscodeJob_FailsOnFindVideoByID(t *testing.T) {
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, "video-id").Return(nil, expectedErr).Once()
 
 	usecase := NewStartTranscodeJobUsecase(mockUowFactory)
-	_, err := usecase.Execute(context.Background(), startJob)
+	_, err := usecase.Execute(t.Context(), startJob)
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
@@ -107,7 +106,7 @@ func TestStartTranscodeJob_FailsOnJobSave(t *testing.T) {
 	mockJobRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*job.Job")).Return(expectedErr).Once()
 
 	usecase := NewStartTranscodeJobUsecase(mockUowFactory)
-	_, err := usecase.Execute(context.Background(), startJob)
+	_, err := usecase.Execute(t.Context(), startJob)
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
@@ -132,7 +131,7 @@ func TestStartTranscodeJob_FailsOnVideoSave(t *testing.T) {
 	mockVideoRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*video.Video")).Return(expectedErr).Once()
 
 	usecase := NewStartTranscodeJobUsecase(mockUowFactory)
-	_, err := usecase.Execute(context.Background(), startJob)
+	_, err := usecase.Execute(t.Context(), startJob)
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
@@ -158,7 +157,7 @@ func TestStartTranscodeJob_FailsOnCommit(t *testing.T) {
 	mockUow.EXPECT().Commit(mock.Anything).Return(expectedErr).Once()
 
 	usecase := NewStartTranscodeJobUsecase(mockUowFactory)
-	_, err := usecase.Execute(context.Background(), startJob)
+	_, err := usecase.Execute(t.Context(), startJob)
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
@@ -173,7 +172,7 @@ func TestStartTranscodeJob_FailsIfJobCannotBeStarted(t *testing.T) {
 	startJob.Status = job.StatusRunning
 
 	usecase := NewStartTranscodeJobUsecase(mockUowFactory)
-	_, err := usecase.Execute(context.Background(), startJob)
+	_, err := usecase.Execute(t.Context(), startJob)
 
 	// We expect a domain error here, before any mocks are called.
 	require.Error(t, err)

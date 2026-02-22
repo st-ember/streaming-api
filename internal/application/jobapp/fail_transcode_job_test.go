@@ -1,7 +1,6 @@
 package jobapp
 
 import (
-	"context"
 	"errors"
 	"testing"
 
@@ -47,7 +46,7 @@ func TestFailTranscodeJob_SuccessCase(t *testing.T) {
 
 	// --- ACT ---
 	usecase := NewFailTranscodeJobUsecase(mockUowFactory)
-	err = usecase.Execute(context.Background(), startJob, errMsg)
+	err = usecase.Execute(t.Context(), startJob, errMsg)
 
 	// --- ASSERT ---
 	require.NoError(t, err)
@@ -66,7 +65,7 @@ func TestFailTranscodeJob_FailsIfJobCannotBeFailed(t *testing.T) {
 	startJob.Status = job.StatusCompleted
 
 	usecase := NewFailTranscodeJobUsecase(mockUowFactory)
-	err := usecase.Execute(context.Background(), startJob, "some error")
+	err := usecase.Execute(t.Context(), startJob, "some error")
 
 	// We expect a domain error here, before any mocks are called.
 	require.Error(t, err)
@@ -92,7 +91,7 @@ func TestFailTranscodeJob_FailsOnFindVideoByID(t *testing.T) {
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, "video-id").Return(nil, expectedErr).Once()
 
 	usecase := NewFailTranscodeJobUsecase(mockUowFactory)
-	err := usecase.Execute(context.Background(), startJob, "some error")
+	err := usecase.Execute(t.Context(), startJob, "some error")
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
@@ -118,7 +117,7 @@ func TestFailTranscodeJob_FailsOnVideoMarkAsFailed(t *testing.T) {
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, "video-id").Return(relatedVideo, nil).Once()
 
 	usecase := NewFailTranscodeJobUsecase(mockUowFactory)
-	err := usecase.Execute(context.Background(), startJob, "some error")
+	err := usecase.Execute(t.Context(), startJob, "some error")
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, video.ErrCannotBeMarkedAsFailed)
@@ -147,7 +146,7 @@ func TestFailTranscodeJob_FailsOnCommit(t *testing.T) {
 	mockJobRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*job.Job")).Return(nil).Once()
 
 	usecase := NewFailTranscodeJobUsecase(mockUowFactory)
-	err := usecase.Execute(context.Background(), startJob, "some error")
+	err := usecase.Execute(t.Context(), startJob, "some error")
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)

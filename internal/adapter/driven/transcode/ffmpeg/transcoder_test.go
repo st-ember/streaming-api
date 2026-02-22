@@ -1,7 +1,6 @@
 package ffmpeg
 
 import (
-	"context"
 	"errors"
 	"io"
 	"os"
@@ -40,7 +39,7 @@ func TestGetDuration_SuccessCase(t *testing.T) {
 
 	// --- ACT ---
 	transcoder := NewFFMPEGTranscoder("/tmp", mockCommander)
-	duration, err := transcoder.getDuration(context.Background(), "/tmp/some/path.mp4")
+	duration, err := transcoder.getDuration(t.Context(), "/tmp/some/path.mp4")
 
 	// --- ASSERT ---
 	require.NoError(t, err)
@@ -61,7 +60,7 @@ func TestGetDuration_FailsOnCommandRun(t *testing.T) {
 	mockCmd.EXPECT().Run().Return(expectedErr).Once() // Simulate ffprobe failing to run
 
 	transcoder := NewFFMPEGTranscoder("/tmp", mockCommander)
-	_, err := transcoder.getDuration(context.Background(), "/tmp/some/path.mp4")
+	_, err := transcoder.getDuration(t.Context(), "/tmp/some/path.mp4")
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
@@ -102,7 +101,7 @@ func TestTranscode_SuccessCase(t *testing.T) {
 
 	// For this test, we can pass dummy values for resourceID and filename,
 	// as the mock commander doesn't actually use them.
-	output, err := transcoder.Transcode(context.Background(), "resource-id", tmpFile.Name())
+	output, err := transcoder.Transcode(t.Context(), "resource-id", tmpFile.Name())
 
 	// --- ASSERT ---
 	require.NoError(t, err)
@@ -132,7 +131,7 @@ func TestTranscode_FailsOnGetDuration(t *testing.T) {
 
 	// --- ACT ---
 	transcoder := NewFFMPEGTranscoder("/tmp", mockCommander)
-	_, err := transcoder.Transcode(context.Background(), "resource-id", "source.mp4")
+	_, err := transcoder.Transcode(t.Context(), "resource-id", "source.mp4")
 
 	// --- ASSERT ---
 	require.Error(t, err)
@@ -172,7 +171,7 @@ func TestTranscode_FailsOnFFmpegRun(t *testing.T) {
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())
 
-	_, err = transcoder.Transcode(context.Background(), "resource-id", tmpFile.Name())
+	_, err = transcoder.Transcode(t.Context(), "resource-id", tmpFile.Name())
 
 	// --- ASSERT ---
 	require.Error(t, err)

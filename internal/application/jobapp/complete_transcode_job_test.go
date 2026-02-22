@@ -1,7 +1,6 @@
 package jobapp
 
 import (
-	"context"
 	"errors"
 	"testing"
 	"time"
@@ -46,7 +45,7 @@ func TestCompleteTranscodeJob_SuccessCase(t *testing.T) {
 
 	// --- ACT ---
 	usecase := NewCompleteTranscodeJobUsecase(mockUowFactory)
-	err = usecase.Execute(context.Background(), startJob, "success", 120*time.Second)
+	err = usecase.Execute(t.Context(), startJob, "success", 120*time.Second)
 
 	// --- ASSERT ---
 	require.NoError(t, err)
@@ -65,7 +64,7 @@ func TestCompleteTranscodeJob_FailsIfJobCannotBeCompleted(t *testing.T) {
 	startJob.Status = job.StatusCompleted
 
 	usecase := NewCompleteTranscodeJobUsecase(mockUowFactory)
-	err := usecase.Execute(context.Background(), startJob, "success", 120*time.Second)
+	err := usecase.Execute(t.Context(), startJob, "success", 120*time.Second)
 
 	// We expect a domain error here, before any mocks are called.
 	require.Error(t, err)
@@ -91,7 +90,7 @@ func TestCompleteTranscodeJob_FailsOnFindVideoByID(t *testing.T) {
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, "video-id").Return(nil, expectedErr).Once()
 
 	usecase := NewCompleteTranscodeJobUsecase(mockUowFactory)
-	err := usecase.Execute(context.Background(), startJob, "success", 120*time.Second)
+	err := usecase.Execute(t.Context(), startJob, "success", 120*time.Second)
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
@@ -117,7 +116,7 @@ func TestCompleteTranscodeJob_FailsOnVideoPublish(t *testing.T) {
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, "video-id").Return(relatedVideo, nil).Once()
 
 	usecase := NewCompleteTranscodeJobUsecase(mockUowFactory)
-	err := usecase.Execute(context.Background(), startJob, "success", 120*time.Second)
+	err := usecase.Execute(t.Context(), startJob, "success", 120*time.Second)
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, video.ErrCannotBePublished)
@@ -146,7 +145,7 @@ func TestCompleteTranscodeJob_FailsOnCommit(t *testing.T) {
 	mockJobRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*job.Job")).Return(nil).Once()
 
 	usecase := NewCompleteTranscodeJobUsecase(mockUowFactory)
-	err := usecase.Execute(context.Background(), startJob, "success", 120*time.Second)
+	err := usecase.Execute(t.Context(), startJob, "success", 120*time.Second)
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
