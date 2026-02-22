@@ -46,8 +46,7 @@ func (r *PostgresJobRepo) FindNextPendingTranscodeJob(ctx context.Context) (*job
 	j := &job.Job{}
 
 	query := `
-		SELECT id, video_id, type, status, 
-		result, error_msg, created_at, updated_at
+		SELECT id, video_id, type, status, created_at, updated_at
 		FROM jobs
 		WHERE status = 'pending' AND type = 'transcode'
 		ORDER BY created_at
@@ -59,8 +58,6 @@ func (r *PostgresJobRepo) FindNextPendingTranscodeJob(ctx context.Context) (*job
 		&j.VideoID,
 		&j.Type,
 		&j.Status,
-		&j.Result,
-		&j.ErrorMsg,
 		&j.CreatedAt,
 		&j.UpdatedAt,
 	)
