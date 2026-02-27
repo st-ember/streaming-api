@@ -8,15 +8,23 @@ import (
 	"github.com/st-ember/streaming-api/internal/domain/job"
 )
 
-type FailTranscodeJobUsecase struct {
+type FailTranscodeJobUsecase interface {
+	Execute(
+		ctx context.Context,
+		job *job.Job,
+		errMsg string,
+	) error
+}
+
+type failTranscodeJobUsecase struct {
 	uowFactory repo.UnitOfWorkFactory
 }
 
-func NewFailTranscodeJobUsecase(uowFactory repo.UnitOfWorkFactory) *FailTranscodeJobUsecase {
-	return &FailTranscodeJobUsecase{uowFactory}
+func NewFailTranscodeJobUsecase(uowFactory repo.UnitOfWorkFactory) *failTranscodeJobUsecase {
+	return &failTranscodeJobUsecase{uowFactory}
 }
 
-func (u *FailTranscodeJobUsecase) Execute(
+func (u *failTranscodeJobUsecase) Execute(
 	ctx context.Context,
 	job *job.Job,
 	errMsg string,

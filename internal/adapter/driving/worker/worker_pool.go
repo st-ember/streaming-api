@@ -11,9 +11,9 @@ import (
 )
 
 type WorkerPool struct {
-	startUC    *jobapp.StartTranscodeJobUsecase
-	completeUC *jobapp.CompleteTranscodeJobUsecase
-	failUC     *jobapp.FailTranscodeJobUsecase
+	startUC    jobapp.StartTranscodeJobUsecase
+	completeUC jobapp.CompleteTranscodeJobUsecase
+	failUC     jobapp.FailTranscodeJobUsecase
 	storer     storage.AssetStorer
 	logger     log.Logger
 	transcoder transcode.Transcoder
@@ -21,10 +21,10 @@ type WorkerPool struct {
 }
 
 func NewWorkerPool(
-	findNextUC *jobapp.FindNextPendingTranscodeJobUsecase,
-	startUC *jobapp.StartTranscodeJobUsecase,
-	completeUC *jobapp.CompleteTranscodeJobUsecase,
-	failUC *jobapp.FailTranscodeJobUsecase,
+	findNextUC jobapp.FindNextPendingTranscodeJobUsecase,
+	startUC jobapp.StartTranscodeJobUsecase,
+	completeUC jobapp.CompleteTranscodeJobUsecase,
+	failUC jobapp.FailTranscodeJobUsecase,
 	storer storage.AssetStorer,
 	logger log.Logger,
 	transcoder transcode.Transcoder,

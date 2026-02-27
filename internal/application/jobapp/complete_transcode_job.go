@@ -9,15 +9,24 @@ import (
 	"github.com/st-ember/streaming-api/internal/domain/job"
 )
 
-type CompleteTranscodeJobUsecase struct {
+type CompleteTranscodeJobUsecase interface {
+	Execute(
+		ctx context.Context,
+		job *job.Job,
+		result string,
+		duration time.Duration,
+	) error
+}
+
+type completeTranscodeJobUsecase struct {
 	uowFactory repo.UnitOfWorkFactory
 }
 
-func NewCompleteTranscodeJobUsecase(uowFactory repo.UnitOfWorkFactory) *CompleteTranscodeJobUsecase {
-	return &CompleteTranscodeJobUsecase{uowFactory}
+func NewCompleteTranscodeJobUsecase(uowFactory repo.UnitOfWorkFactory) *completeTranscodeJobUsecase {
+	return &completeTranscodeJobUsecase{uowFactory}
 }
 
-func (u *CompleteTranscodeJobUsecase) Execute(
+func (u *completeTranscodeJobUsecase) Execute(
 	ctx context.Context,
 	job *job.Job,
 	result string,

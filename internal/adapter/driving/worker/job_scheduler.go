@@ -12,13 +12,13 @@ import (
 )
 
 type JobScheduler struct {
-	findNextUC *jobapp.FindNextPendingTranscodeJobUsecase
+	findNextUC jobapp.FindNextPendingTranscodeJobUsecase
 	logger     log.Logger
 	jobCh      chan *job.Job
 }
 
 func NewJobScheduler(
-	findNextUC *jobapp.FindNextPendingTranscodeJobUsecase,
+	findNextUC jobapp.FindNextPendingTranscodeJobUsecase,
 	logger log.Logger,
 	jobCh chan *job.Job,
 ) *JobScheduler {

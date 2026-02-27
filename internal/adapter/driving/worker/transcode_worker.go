@@ -13,9 +13,9 @@ import (
 )
 
 type TranscodeWorker struct {
-	startUC    *jobapp.StartTranscodeJobUsecase
-	completeUC *jobapp.CompleteTranscodeJobUsecase
-	failUC     *jobapp.FailTranscodeJobUsecase
+	startUC    jobapp.StartTranscodeJobUsecase
+	completeUC jobapp.CompleteTranscodeJobUsecase
+	failUC     jobapp.FailTranscodeJobUsecase
 	storer     storage.AssetStorer
 	logger     log.Logger
 	transcoder transcode.Transcoder
@@ -23,9 +23,9 @@ type TranscodeWorker struct {
 }
 
 func NewTranscodeWorker(
-	startUC *jobapp.StartTranscodeJobUsecase,
-	completeUC *jobapp.CompleteTranscodeJobUsecase,
-	failUC *jobapp.FailTranscodeJobUsecase,
+	startUC jobapp.StartTranscodeJobUsecase,
+	completeUC jobapp.CompleteTranscodeJobUsecase,
+	failUC jobapp.FailTranscodeJobUsecase,
 	storer storage.AssetStorer,
 	logger log.Logger,
 	transcoder transcode.Transcoder,

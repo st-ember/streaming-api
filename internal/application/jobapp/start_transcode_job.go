@@ -8,19 +8,23 @@ import (
 	"github.com/st-ember/streaming-api/internal/domain/job"
 )
 
-type StartTranscodeJobUsecase struct {
+type StartTranscodeJobUsecase interface {
+	Execute(ctx context.Context, job *job.Job) (*StartTranscodeJobResponse, error)
+}
+
+type startTranscodeJobUsecase struct {
 	uowFactory repo.UnitOfWorkFactory
 }
 
 func NewStartTranscodeJobUsecase(
 	uowFactory repo.UnitOfWorkFactory,
-) *StartTranscodeJobUsecase {
-	return &StartTranscodeJobUsecase{
+) *startTranscodeJobUsecase {
+	return &startTranscodeJobUsecase{
 		uowFactory,
 	}
 }
 
-func (u *StartTranscodeJobUsecase) Execute(ctx context.Context, job *job.Job) (*StartTranscodeJobResponse, error) {
+func (u *startTranscodeJobUsecase) Execute(ctx context.Context, job *job.Job) (*StartTranscodeJobResponse, error) {
 	// Update job entity
 	if err := job.Start(); err != nil {
 		return nil, fmt.Errorf("start job %s: %w", job.ID, err)
