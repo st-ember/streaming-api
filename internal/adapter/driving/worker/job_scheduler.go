@@ -16,6 +16,7 @@ type JobScheduler struct {
 	logger       log.Logger
 	jobCh        chan *job.Job
 	pollInterval time.Duration
+	workerLimit  int
 }
 
 func NewJobScheduler(
@@ -23,16 +24,16 @@ func NewJobScheduler(
 	logger log.Logger,
 	jobCh chan *job.Job,
 	pollInterval time.Duration,
+	workerLimit int,
 ) *JobScheduler {
 	return &JobScheduler{
 		findNextUC,
 		logger,
 		jobCh,
 		pollInterval,
+		workerLimit,
 	}
 }
-
-var workerLimit = 5
 
 func (s *JobScheduler) Run(ctx context.Context) {
 	s.logger.Infof("starting worker pool")

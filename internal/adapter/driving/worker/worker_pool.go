@@ -12,14 +12,15 @@ import (
 )
 
 type WorkerPool struct {
-	startUC    jobapp.StartTranscodeJobUsecase
-	completeUC jobapp.CompleteTranscodeJobUsecase
-	failUC     jobapp.FailTranscodeJobUsecase
-	storer     storage.AssetStorer
-	logger     log.Logger
-	transcoder transcode.Transcoder
-	jobCh      chan *job.Job
-	scheduler  *JobScheduler
+	startUC     jobapp.StartTranscodeJobUsecase
+	completeUC  jobapp.CompleteTranscodeJobUsecase
+	failUC      jobapp.FailTranscodeJobUsecase
+	storer      storage.AssetStorer
+	logger      log.Logger
+	transcoder  transcode.Transcoder
+	jobCh       chan *job.Job
+	scheduler   *JobScheduler
+	workerLimit int
 }
 
 func NewWorkerPool(
@@ -30,9 +31,11 @@ func NewWorkerPool(
 	storer storage.AssetStorer,
 	logger log.Logger,
 	transcoder transcode.Transcoder,
-	jobCh chan *job.Job,
+	workerLimit int,
 ) *WorkerPool {
-	scheduler := NewJobScheduler(findNextUC, logger, jobCh, 10*time.Second)
+	jobCh := make(chan *job.Job, workerLimit)
+
+	scheduler := NewJobScheduler(findNextUC, logger, jobCh, 10*time.Second, workerLimit)
 
 	return &WorkerPool{
 		startUC,
@@ -43,13 +46,14 @@ func NewWorkerPool(
 		transcoder,
 		jobCh,
 		scheduler,
+		workerLimit,
 	}
 }
 
 func (p *WorkerPool) Start(ctx context.Context) {
 	go p.scheduler.Run(ctx)
 
-	for range workerLimit {
+	for range p.workerLimit {
 		go func() {
 			worker := NewTranscodeWorker(
 				p.startUC, p.completeUC, p.failUC,

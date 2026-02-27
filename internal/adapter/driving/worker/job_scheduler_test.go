@@ -22,7 +22,7 @@ func TestJobScheduler_Run(t *testing.T) {
 		jobCh := make(chan *job.Job, 1)
 
 		ctx, cancel := context.WithCancel(t.Context())
-		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond)
+		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond, 5)
 
 		logger.EXPECT().Infof("starting worker pool").Once()
 		logger.EXPECT().Infof("shutting down worker pool").Once()
@@ -51,7 +51,7 @@ func TestJobScheduler_Run(t *testing.T) {
 		logger := mocklog.NewMockLogger(t)
 		jobCh := make(chan *job.Job, 1)
 
-		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond)
+		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond, 5)
 
 		testJob, _ := job.NewJob("job-1", "video-1", job.TypeTranscode)
 
@@ -78,7 +78,7 @@ func TestJobScheduler_Run(t *testing.T) {
 		logger := mocklog.NewMockLogger(t)
 		jobCh := make(chan *job.Job, 1)
 
-		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond)
+		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond, 5)
 
 		logger.EXPECT().Infof("starting worker pool").Once()
 		findNextUC.EXPECT().Execute(mock.Anything).Return(nil, sql.ErrNoRows).Once()
@@ -96,7 +96,7 @@ func TestJobScheduler_Run(t *testing.T) {
 		logger := mocklog.NewMockLogger(t)
 		jobCh := make(chan *job.Job, 1)
 
-		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond)
+		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond, 5)
 
 		logger.EXPECT().Infof("starting worker pool").Once()
 		findNextUC.EXPECT().Execute(mock.Anything).Return(nil, errors.New("db error")).Once()
@@ -115,7 +115,7 @@ func TestJobScheduler_Run(t *testing.T) {
 		logger := mocklog.NewMockLogger(t)
 		jobCh := make(chan *job.Job, 1)
 
-		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond)
+		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond, 5)
 
 		testJob1, _ := job.NewJob("job-1", "video-1", job.TypeTranscode)
 		testJob2, _ := job.NewJob("job-2", "video-1", job.TypeTranscode)
