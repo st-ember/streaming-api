@@ -111,8 +111,31 @@ func (t *FFMPEGTranscoder) Transcode(ctx context.Context, resourceID, sourceFile
 		return nil, fmt.Errorf("ffmpeg execution: %w\noutput:\n%s", err, stdErr.String())
 	}
 
+	// Walk temp dir to assemble all the transcoded files
+	var outputFiles []string
+	err = filepath.WalkDir(outputDir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if !d.IsDir() {
+			relPath, err := filepath.Rel(outputDir, path)
+			if err != nil {
+				return fmt.Errorf("get relative path for %s: %w", path, err)
+			}
+
+			outputFiles = append(outputFiles, relPath)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, fmt.Errorf("assemble transcoded files: %w", err)
+	}
+
 	return &transcode.TranscodeOutput{
 		Duration:     duration,
 		ManifestPath: manifestPath,
+		OutputFiles:  outputFiles,
 	}, nil
 }
