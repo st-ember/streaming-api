@@ -69,6 +69,12 @@ func (w *TranscodeWorker) Start(ctx context.Context) {
 			}
 
 			tempOutputDir := filepath.Dir(out.ManifestPath)
+			// Clean up temporary directory on error or when job finishes
+			defer func() {
+				if err := os.RemoveAll(tempOutputDir); err != nil {
+					w.logger.Errorf("job %s: clean up temporary directory %s: %v", job.ID, tempOutputDir, err)
+				}
+			}()
 
 			// Move temp files from manifest path into permanent storage
 			for _, relativeFilePath := range out.OutputFiles {
@@ -77,8 +83,7 @@ func (w *TranscodeWorker) Start(ctx context.Context) {
 				if err != nil {
 					w.logger.Errorf("job %s: open temporary file %s for saving: %v", job.ID, fullTempPath, err)
 					w.failUC.Execute(ctx, job, "failed to read transcoded output")
-					os.RemoveAll(tempOutputDir)
-					continue
+					return
 				}
 
 				err = w.storer.Save(ctx, resp.ResourceID, relativeFilePath, tempFile)
@@ -87,14 +92,8 @@ func (w *TranscodeWorker) Start(ctx context.Context) {
 				if err != nil {
 					w.logger.Errorf("job %s: save transcoded file %s to storage: %v", job.ID, relativeFilePath, err)
 					w.failUC.Execute(ctx, job, "failed to save transcoded output")
-					os.RemoveAll(tempOutputDir)
-					continue
+					return
 				}
-			}
-
-			// Delete temp out dir
-			if err := os.RemoveAll(tempOutputDir); err != nil {
-				w.logger.Errorf("job %s: clean up temporary directory %s: %v", job.ID, tempOutputDir, err)
 			}
 
 			if err := w.completeUC.Execute(ctx, job, out.ManifestPath, out.Duration); err != nil {
