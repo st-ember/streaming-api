@@ -87,15 +87,34 @@ func (t *FFMPEGTranscoder) Transcode(ctx context.Context, resourceID, sourceFile
 	manifestPath := filepath.Join(outputDir, "manifest.mpd")
 
 	args := []string{
+		// Set input
 		"-i", sourcePath,
-		"-c:a", "aac", "-ac", "2",
-		"-map", "0:v:0", "-map", "0:v:0", "-map", "0:a:0",
-		"-c:v:0", "libx264", "-crf:v:0", "23", "-preset:v:0", "medium", "-maxrate:v:0", "1500k",
-		"-bufsize:v:0", "3000k", "-s:v:0", "854x480",
-		"-c:v:1", "libx264", "-crf:v:1", "22", "-preset:v:1", "medium", "-maxrate:v:1", "3000k",
-		"-bufsize:v:1", "6000k", "-s:v:1", "1280x720",
+
+		"-c:a", "aac", // Use aac audio codec
+		"-ac", "2", // Set audio channel to 2
+
+		// Select first video and audio files
+		"-map", "0:v:0", "-map", "0:a:0",
+
+		// First video rendition (480p)
+		"-c:v:0", "libx264", // Use the standard H.264 video codec
+		"-crf:v:0", "23", // Constant Rate Factor (quality)
+		"-preset:v:0", "medium", // Transcode speed
+		"-maxrate:v:0", "1500k", // Maximum allowed bitrate
+		"-bufsize:v:0", "3000k", // Set buffer size to twice of bitrate
+		"-s:v:0", "854x480", // Output size (resolution)
+
+		// Second video rendition (720p)
+		"-c:v:1", "libx264",
+		"-crf:v:1", "22",
+		"-preset:v:1", "medium",
+		"-maxrate:v:1", "3000k",
+		"-bufsize:v:1", "6000k",
+		"-s:v:1", "1280x720",
+
+		// Groups the video and audio streams in the manifest
 		"-adaptation_sets", "id=0,streams=v id=1,streams=a",
-		"-f", "dash",
+		"-f", "dash", // Output format DASH
 		manifestPath,
 	}
 
