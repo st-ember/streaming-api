@@ -2,6 +2,7 @@ package jobapp
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/st-ember/streaming-api/internal/application/ports/repo"
 	"github.com/st-ember/streaming-api/internal/domain/job"
@@ -12,13 +13,18 @@ type FindNextPendingTranscodeJobUsecase interface {
 }
 
 type findNextPendingTranscodeJobUsecase struct {
-	jobRepo repo.JobRepo
+	uowFactory repo.UnitOfWorkFactory
 }
 
-func NewFindNextPendingTranscodeJobUsecase(jobRepo repo.JobRepo) *findNextPendingTranscodeJobUsecase {
-	return &findNextPendingTranscodeJobUsecase{jobRepo}
+func NewFindNextPendingTranscodeJobUsecase(uowFactory repo.UnitOfWorkFactory) *findNextPendingTranscodeJobUsecase {
+	return &findNextPendingTranscodeJobUsecase{uowFactory}
 }
 
 func (u *findNextPendingTranscodeJobUsecase) Execute(ctx context.Context) (*job.Job, error) {
-	return u.jobRepo.FindNextPendingTranscodeJob(ctx)
+	uow, err := u.uowFactory.NewUnitOfWork(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("initialize unit of work: %w", err)
+	}
+	jobRepo := uow.JobRepo()
+	return jobRepo.FindNextPendingTranscodeJob(ctx)
 }

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	repoMocks "github.com/st-ember/streaming-api/internal/application/ports/repo/mocks"
+	repomocks "github.com/st-ember/streaming-api/internal/application/ports/repo/mocks"
 	"github.com/st-ember/streaming-api/internal/domain/job"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -13,8 +13,10 @@ import (
 func TestFindNextPendingTranscodeJob_SuccessCase(t *testing.T) {
 	t.Parallel()
 
-	// Set up mocks
-	mockJobRepo := repoMocks.NewMockJobRepo(t)
+	// --- ARRANGE ---
+	mockJobRepo := repomocks.NewMockJobRepo(t)
+	mockUow := repomocks.NewMockUnitOfWork(t)
+	mockUowFactory := repomocks.NewMockUnitOfWorkFactory(t)
 
 	// Create a job entity to return
 	expectedJob, err := job.NewJob(
@@ -24,11 +26,13 @@ func TestFindNextPendingTranscodeJob_SuccessCase(t *testing.T) {
 	)
 	require.NoError(t, err)
 
-	// Job repo expectations
+	// Define expectations
+	mockUowFactory.EXPECT().NewUnitOfWork(mock.Anything).Return(mockUow, nil).Once()
+	mockUow.EXPECT().JobRepo().Return(mockJobRepo).Once()
 	mockJobRepo.EXPECT().FindNextPendingTranscodeJob(mock.Anything).Return(expectedJob, nil).Once()
 
 	// Create usecase
-	usecase := NewFindNextPendingTranscodeJobUsecase(mockJobRepo)
+	usecase := NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
 
 	// Execute usecase
 	foundJob, err := usecase.Execute(t.Context())
@@ -44,15 +48,19 @@ func TestFindNextPendingTranscodeJob_SuccessCase(t *testing.T) {
 func TestFindNextPendingTranscodeJob_JobRepoReturnsError(t *testing.T) {
 	t.Parallel()
 
-	// Set up mocks
-	mockJobRepo := repoMocks.NewMockJobRepo(t)
+	// --- ARRANGE ---
+	mockJobRepo := repomocks.NewMockJobRepo(t)
+	mockUow := repomocks.NewMockUnitOfWork(t)
+	mockUowFactory := repomocks.NewMockUnitOfWorkFactory(t)
 
 	// Job repo expectations
+	mockUowFactory.EXPECT().NewUnitOfWork(mock.Anything).Return(mockUow, nil).Once()
+	mockUow.EXPECT().JobRepo().Return(mockJobRepo).Once()
 	expectedErr := errors.New("connection failed")
 	mockJobRepo.EXPECT().FindNextPendingTranscodeJob(mock.Anything).Return(nil, expectedErr).Once()
 
 	// Create usecase
-	usecase := NewFindNextPendingTranscodeJobUsecase(mockJobRepo)
+	usecase := NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
 
 	// Execute usecase
 	foundJob, err := usecase.Execute(t.Context())
@@ -66,14 +74,18 @@ func TestFindNextPendingTranscodeJob_JobRepoReturnsError(t *testing.T) {
 func TestFindNextPendingTranscodeJob_NoJobFound(t *testing.T) {
 	t.Parallel()
 
-	// Set up mocks
-	mockJobRepo := repoMocks.NewMockJobRepo(t)
+	// --- ARRANGE ---
+	mockJobRepo := repomocks.NewMockJobRepo(t)
+	mockUow := repomocks.NewMockUnitOfWork(t)
+	mockUowFactory := repomocks.NewMockUnitOfWorkFactory(t)
 
 	// Job repo expectations
+	mockUowFactory.EXPECT().NewUnitOfWork(mock.Anything).Return(mockUow, nil).Once()
+	mockUow.EXPECT().JobRepo().Return(mockJobRepo).Once()
 	mockJobRepo.EXPECT().FindNextPendingTranscodeJob(mock.Anything).Return(nil, nil).Once()
 
 	// Create usecase
-	usecase := NewFindNextPendingTranscodeJobUsecase(mockJobRepo)
+	usecase := NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
 
 	// Execute usecase
 	foundJob, err := usecase.Execute(t.Context())
