@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"time"
 
 	"github.com/st-ember/streaming-api/internal/application/jobapp"
 	"github.com/st-ember/streaming-api/internal/application/ports/log"
@@ -18,6 +19,7 @@ type WorkerPool struct {
 	logger     log.Logger
 	transcoder transcode.Transcoder
 	jobCh      chan *job.Job
+	scheduler  *JobScheduler
 }
 
 func NewWorkerPool(
@@ -30,6 +32,8 @@ func NewWorkerPool(
 	transcoder transcode.Transcoder,
 	jobCh chan *job.Job,
 ) *WorkerPool {
+	scheduler := NewJobScheduler(findNextUC, logger, jobCh, 10*time.Second)
+
 	return &WorkerPool{
 		startUC,
 		completeUC,
@@ -38,10 +42,13 @@ func NewWorkerPool(
 		logger,
 		transcoder,
 		jobCh,
+		scheduler,
 	}
 }
 
 func (p *WorkerPool) Start(ctx context.Context) {
+	go p.scheduler.Run(ctx)
+
 	for range workerLimit {
 		go func() {
 			worker := NewTranscodeWorker(

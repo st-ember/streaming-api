@@ -12,20 +12,23 @@ import (
 )
 
 type JobScheduler struct {
-	findNextUC jobapp.FindNextPendingTranscodeJobUsecase
-	logger     log.Logger
-	jobCh      chan *job.Job
+	findNextUC   jobapp.FindNextPendingTranscodeJobUsecase
+	logger       log.Logger
+	jobCh        chan *job.Job
+	pollInterval time.Duration
 }
 
 func NewJobScheduler(
 	findNextUC jobapp.FindNextPendingTranscodeJobUsecase,
 	logger log.Logger,
 	jobCh chan *job.Job,
+	pollInterval time.Duration,
 ) *JobScheduler {
 	return &JobScheduler{
 		findNextUC,
 		logger,
 		jobCh,
+		pollInterval,
 	}
 }
 
@@ -34,8 +37,7 @@ var workerLimit = 5
 func (s *JobScheduler) Run(ctx context.Context) {
 	s.logger.Infof("starting worker pool")
 
-	waitSec := 10
-	ticker := time.NewTicker(time.Duration(waitSec) * time.Second)
+	ticker := time.NewTicker(s.pollInterval)
 	defer ticker.Stop()
 
 	for {
@@ -61,7 +63,7 @@ func (s *JobScheduler) Run(ctx context.Context) {
 			case s.jobCh <- job:
 				s.logger.Infof("job %s is added to queue", job.ID)
 			default: // Default case to make the scheduler more reactive for later adjustments
-				s.logger.Infof("job queue full now, will try again in %v seconds", waitSec)
+				s.logger.Infof("job queue full now, will try again in %v seconds", s.pollInterval)
 			}
 		}
 	}
