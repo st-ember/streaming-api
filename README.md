@@ -29,8 +29,8 @@ The following table outlines the available API endpoints.
 
 | Method | Path                  | Description                                              |
 |--------|-----------------------|----------------------------------------------------------|
-| `POST` | `/api/videos`         | Creates a new video resource and starts a transcode job. |
-| `GET`  | `/api/videos/{page}`  | Lists all available video resources, with pagination.    |
+| `POST` | `/api/video`         | Creates a new video resource and starts a transcode job. |
+| `GET`  | `/api/video/{page}`  | Lists all available video resources, with pagination.    |
 | `GET`  | `/api/video/{videoId}`| Retrieves details and status for a specific video.       |
 | `PUT`  | `/api/video/{videoId}`| Updates a video's metadata (e.g., title).                |
 | `DELETE`| `/api/video/{videoId}`| Deletes a video manifest and all associated files.      |
