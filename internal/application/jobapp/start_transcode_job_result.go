@@ -1,6 +1,6 @@
 package jobapp
 
-type StartTranscodeJobResponse struct {
+type StartTranscodeJobResult struct {
 	ResourceID     string
 	SourceFilename string
 }

@@ -30,7 +30,7 @@ func NewUploadVideoUsecase(
 	}
 }
 
-func (u *UploadVideoUsecase) Execute(ctx context.Context, input UploadVideoInput) (*UploadVideoResponse, error) {
+func (u *UploadVideoUsecase) Execute(ctx context.Context, input UploadVideoInput) (*UploadVideoResult, error) {
 	// store original video
 	resourceID := uuid.NewString()
 	err := u.assetStorer.Save(ctx, resourceID, input.FileName, input.VideoContent)
@@ -89,5 +89,5 @@ func (u *UploadVideoUsecase) Execute(ctx context.Context, input UploadVideoInput
 		return nil, fmt.Errorf("finalize transaction: %w", err)
 	}
 
-	return &UploadVideoResponse{Video: v, Job: j}, nil
+	return &UploadVideoResult{Video: v, Job: j}, nil
 }

@@ -9,7 +9,7 @@ import (
 )
 
 type StartTranscodeJobUsecase interface {
-	Execute(ctx context.Context, job *job.Job) (*StartTranscodeJobResponse, error)
+	Execute(ctx context.Context, job *job.Job) (*StartTranscodeJobResult, error)
 }
 
 type startTranscodeJobUsecase struct {
@@ -24,7 +24,7 @@ func NewStartTranscodeJobUsecase(
 	}
 }
 
-func (u *startTranscodeJobUsecase) Execute(ctx context.Context, job *job.Job) (*StartTranscodeJobResponse, error) {
+func (u *startTranscodeJobUsecase) Execute(ctx context.Context, job *job.Job) (*StartTranscodeJobResult, error) {
 	// Update job entity
 	if err := job.Start(); err != nil {
 		return nil, fmt.Errorf("start job %s: %w", job.ID, err)
@@ -64,7 +64,7 @@ func (u *startTranscodeJobUsecase) Execute(ctx context.Context, job *job.Job) (*
 		return nil, fmt.Errorf("finalize transaction %w", err)
 	}
 
-	return &StartTranscodeJobResponse{
+	return &StartTranscodeJobResult{
 		ResourceID:     video.ResourceID,
 		SourceFilename: video.Filename,
 	}, nil

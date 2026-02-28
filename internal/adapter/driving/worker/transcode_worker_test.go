@@ -44,7 +44,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 		err = os.WriteFile(filepath.Join(tempDir, segmentName), []byte("segment content"), 0644)
 		require.NoError(t, err)
 
-		startUC.EXPECT().Execute(mock.Anything, testJob).Return(&jobapp.StartTranscodeJobResponse{
+		startUC.EXPECT().Execute(mock.Anything, testJob).Return(&jobapp.StartTranscodeJobResult{
 			ResourceID:     resourceID,
 			SourceFilename: sourceFile,
 		}, nil)
@@ -109,7 +109,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 		resourceID := "res-1"
 		sourceFile := "input.mp4"
 
-		startUC.EXPECT().Execute(mock.Anything, testJob).Return(&jobapp.StartTranscodeJobResponse{
+		startUC.EXPECT().Execute(mock.Anything, testJob).Return(&jobapp.StartTranscodeJobResult{
 			ResourceID:     resourceID,
 			SourceFilename: sourceFile,
 		}, nil)
@@ -145,7 +145,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 		manifestName := "manifest.m3u8"
 		os.WriteFile(filepath.Join(tempDir, manifestName), []byte("content"), 0644)
 
-		startUC.EXPECT().Execute(mock.Anything, testJob).Return(&jobapp.StartTranscodeJobResponse{
+		startUC.EXPECT().Execute(mock.Anything, testJob).Return(&jobapp.StartTranscodeJobResult{
 			ResourceID:     resourceID,
 			SourceFilename: sourceFile,
 		}, nil)

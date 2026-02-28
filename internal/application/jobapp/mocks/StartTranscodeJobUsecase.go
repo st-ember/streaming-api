@@ -40,23 +40,23 @@ func (_m *MockStartTranscodeJobUsecase) EXPECT() *MockStartTranscodeJobUsecase_E
 }
 
 // Execute provides a mock function for the type MockStartTranscodeJobUsecase
-func (_mock *MockStartTranscodeJobUsecase) Execute(ctx context.Context, job1 *job.Job) (*jobapp.StartTranscodeJobResponse, error) {
+func (_mock *MockStartTranscodeJobUsecase) Execute(ctx context.Context, job1 *job.Job) (*jobapp.StartTranscodeJobResult, error) {
 	ret := _mock.Called(ctx, job1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Execute")
 	}
 
-	var r0 *jobapp.StartTranscodeJobResponse
+	var r0 *jobapp.StartTranscodeJobResult
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *job.Job) (*jobapp.StartTranscodeJobResponse, error)); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *job.Job) (*jobapp.StartTranscodeJobResult, error)); ok {
 		return returnFunc(ctx, job1)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, *job.Job) *jobapp.StartTranscodeJobResponse); ok {
+	if returnFunc, ok := ret.Get(0).(func(context.Context, *job.Job) *jobapp.StartTranscodeJobResult); ok {
 		r0 = returnFunc(ctx, job1)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*jobapp.StartTranscodeJobResponse)
+			r0 = ret.Get(0).(*jobapp.StartTranscodeJobResult)
 		}
 	}
 	if returnFunc, ok := ret.Get(1).(func(context.Context, *job.Job) error); ok {
@@ -97,12 +97,12 @@ func (_c *MockStartTranscodeJobUsecase_Execute_Call) Run(run func(ctx context.Co
 	return _c
 }
 
-func (_c *MockStartTranscodeJobUsecase_Execute_Call) Return(startTranscodeJobResponse *jobapp.StartTranscodeJobResponse, err error) *MockStartTranscodeJobUsecase_Execute_Call {
-	_c.Call.Return(startTranscodeJobResponse, err)
+func (_c *MockStartTranscodeJobUsecase_Execute_Call) Return(startTranscodeJobResult *jobapp.StartTranscodeJobResult, err error) *MockStartTranscodeJobUsecase_Execute_Call {
+	_c.Call.Return(startTranscodeJobResult, err)
 	return _c
 }
 
-func (_c *MockStartTranscodeJobUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, job1 *job.Job) (*jobapp.StartTranscodeJobResponse, error)) *MockStartTranscodeJobUsecase_Execute_Call {
+func (_c *MockStartTranscodeJobUsecase_Execute_Call) RunAndReturn(run func(ctx context.Context, job1 *job.Job) (*jobapp.StartTranscodeJobResult, error)) *MockStartTranscodeJobUsecase_Execute_Call {
 	_c.Call.Return(run)
 	return _c
 }
