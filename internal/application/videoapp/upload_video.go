@@ -12,7 +12,11 @@ import (
 	"github.com/st-ember/streaming-api/internal/domain/video"
 )
 
-type UploadVideoUsecase struct {
+type UploadVideoUsecase interface {
+	Execute(ctx context.Context, input UploadVideoInput) (*UploadVideoResult, error)
+}
+
+type uploadVideoUsecase struct {
 	assetStorer storage.AssetStorer
 	uowFactory  repo.UnitOfWorkFactory
 	logger      log.Logger
@@ -22,15 +26,15 @@ func NewUploadVideoUsecase(
 	assetStorer storage.AssetStorer,
 	uow repo.UnitOfWorkFactory,
 	logger log.Logger,
-) *UploadVideoUsecase {
-	return &UploadVideoUsecase{
+) *uploadVideoUsecase {
+	return &uploadVideoUsecase{
 		assetStorer,
 		uow,
 		logger,
 	}
 }
 
-func (u *UploadVideoUsecase) Execute(ctx context.Context, input UploadVideoInput) (*UploadVideoResult, error) {
+func (u *uploadVideoUsecase) Execute(ctx context.Context, input UploadVideoInput) (*UploadVideoResult, error) {
 	// store original video
 	resourceID := uuid.NewString()
 	err := u.assetStorer.Save(ctx, resourceID, input.FileName, input.VideoContent)
