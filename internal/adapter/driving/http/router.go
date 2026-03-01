@@ -20,17 +20,19 @@ var (
 
 func NewRouter(
 	uploadVideoUC videoapp.UploadVideoUsecase,
+	getInfoUC videoapp.GetVideoInfoUsecase,
 	logger log.Logger,
 ) *Router {
 	r := mux.NewRouter()
 
 	api := r.PathPrefix("/api").Subrouter()
 
-	videoH := handler.NewVideoHandler(uploadVideoUC, logger)
+	videoH := handler.NewVideoHandler(uploadVideoUC, getInfoUC, logger)
 
 	// video
 	videoRouter := api.PathPrefix("/video").Subrouter()
 	videoRouter.HandleFunc("/", videoH.Upload).Methods(POST)
+	videoRouter.HandleFunc("/{id}", videoH.Get).Methods(GET)
 
 	return &Router{MuxRt: r}
 }

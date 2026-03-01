@@ -57,8 +57,9 @@ func main() {
 	findNextUC := jobapp.NewFindNextPendingTranscodeJobUsecase(uowFactory)
 	startTranscodeUC := jobapp.NewStartTranscodeJobUsecase(uowFactory)
 
-	// Video Usecase
+	// Video Usecases
 	uploadVideoUC := videoapp.NewUploadVideoUsecase(storer, uowFactory, logger)
+	getInfoUC := videoapp.NewGetVideoInfoUsecase(uowFactory)
 
 	// Driving adapter (Worker)
 	workerPool := worker.NewWorkerPool(
@@ -68,7 +69,7 @@ func main() {
 	workerPool.Start(ctx)
 
 	// Driving adapter (HTTP)
-	router := adpHttp.NewRouter(uploadVideoUC, logger)
+	router := adpHttp.NewRouter(uploadVideoUC, getInfoUC, logger)
 
 	// Server config
 	srv := &http.Server{
