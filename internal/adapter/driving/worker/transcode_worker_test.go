@@ -61,7 +61,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 		completeUC.EXPECT().Execute(mock.Anything, testJob, filepath.Join(tempDir, manifestName), 10*time.Second).Return(nil)
 		logger.EXPECT().Infof(mock.Anything, mock.Anything).Maybe()
 
-		go w.Start(t.Context())
+		go w.Start()
 		jobCh <- testJob
 		close(jobCh)
 
@@ -87,7 +87,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
 		logger.EXPECT().Infof(mock.Anything, mock.Anything).Maybe()
 
-		go w.Start(t.Context())
+		go w.Start()
 		jobCh <- testJob
 		close(jobCh)
 
@@ -119,7 +119,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
 		logger.EXPECT().Infof(mock.Anything, mock.Anything).Maybe()
 
-		go w.Start(t.Context())
+		go w.Start()
 		jobCh <- testJob
 		close(jobCh)
 
@@ -161,7 +161,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
 		logger.EXPECT().Infof(mock.Anything, mock.Anything).Maybe()
 
-		go w.Start(t.Context())
+		go w.Start()
 		jobCh <- testJob
 		close(jobCh)
 

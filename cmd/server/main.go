@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/st-ember/streaming-api/internal/adapter/driven/exec/os"
+	"github.com/st-ember/streaming-api/internal/adapter/driven/config"
+	exec "github.com/st-ember/streaming-api/internal/adapter/driven/exec/os"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/log/stdlib"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/repo/postgres"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/storage/local"
@@ -19,55 +22,94 @@ import (
 )
 
 func main() {
-	// Context
-	ctx := context.Background()
+	// Setup Signal-aware Context for graceful shutdown
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 
-	// Driven adapters
-	db, err := postgres.NewDB("")
+	// Config (use environment variables)
+	cfg := config.Load()
+
+	// Driven adapter (Repo)
+	db, err := postgres.NewDB(cfg.ConnStr)
 	if err != nil {
 		log.Fatalf("start db connection: %v", err)
 	}
+	defer db.Conn.Close()
 
 	uowFactory := postgres.NewPostgresUnitOfWorkFactory(db.Conn)
 
-	storer, err := local.NewLocalAssetStorer("")
+	// Driven adapter (Logger)
+	logger := stdlib.NewStdLogger()
+
+	// Driven adapter (Storer)
+	storer, err := local.NewLocalAssetStorer(cfg.StoragePath)
 	if err != nil {
 		log.Fatalf("start storer: %v", err)
 	}
 
-	logger := stdlib.NewStdLogger()
-	execCommander := os.NewOsCommander()
-	transcoder := ffmpeg.NewFFMPEGTranscoder("", execCommander)
+	// Driven adapter (Exec Commander)
+	execCommander := exec.NewOsCommander()
+	transcoder := ffmpeg.NewFFMPEGTranscoder(cfg.StoragePath, execCommander)
 
-	// Usecases
+	// Job Usecases
 	completeTranscodeUC := jobapp.NewCompleteTranscodeJobUsecase(uowFactory)
 	failTranscodeUC := jobapp.NewFailTranscodeJobUsecase(uowFactory)
 	findNextUC := jobapp.NewFindNextPendingTranscodeJobUsecase(uowFactory)
 	startTranscodeUC := jobapp.NewStartTranscodeJobUsecase(uowFactory)
 
+	// Video Usecase
 	uploadVideoUC := videoapp.NewUploadVideoUsecase(storer, uowFactory, logger)
 
-	// Driving adapters
+	// Driving adapter (Worker)
 	workerPool := worker.NewWorkerPool(
-		findNextUC, startTranscodeUC, completeTranscodeUC,
-		failTranscodeUC, storer, logger, transcoder, 5,
+		findNextUC, startTranscodeUC, completeTranscodeUC, failTranscodeUC,
+		storer, logger, transcoder, cfg.PollInterval, cfg.WorkerLimit,
 	)
-
 	workerPool.Start(ctx)
 
+	// Driving adapter (HTTP)
 	router := adpHttp.NewRouter(uploadVideoUC, logger)
 
-	serverAdd := "8085"
-
+	// Server config
 	srv := &http.Server{
-		Handler: router.MuxRt,
-		Addr:    serverAdd,
-		// Good practice: enforce timeouts for servers you create!
+		Handler:      router.MuxRt,
+		Addr:         ":" + cfg.ServerAdd,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
 
-	fmt.Printf("Now listening on %s", serverAdd)
+	// Start HTTP Server in background
+	go func() {
+		logger.Infof("Now listening on :%s\n", cfg.ServerAdd)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			stop() // initiate graceful shutdown
+			logger.Errorf("listen: %s\n", err)
+		}
+	}()
 
-	log.Fatal(srv.ListenAndServe())
+	// Wait for signal to shut down
+	<-ctx.Done()
+	logger.Infof("shutting down gracefully...")
+
+	// Shutdown server with timeout
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Fatalf("server forced to shutdown: %v", err)
+	}
+
+	workerDone := make(chan struct{})
+	go func() {
+		workerPool.Wait()
+		close(workerDone)
+	}()
+
+	select {
+	case <-workerDone:
+		logger.Infof("workers exited cleanly")
+	case <-time.After(cfg.WorkerWaitTime):
+		logger.Warnf("timed out waiting for workers; forcing exit")
+	}
+
+	logger.Infof("exiting")
 }

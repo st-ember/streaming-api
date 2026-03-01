@@ -2,6 +2,7 @@ package worker
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/st-ember/streaming-api/internal/application/jobapp"
@@ -21,6 +22,7 @@ type WorkerPool struct {
 	jobCh       chan *job.Job
 	scheduler   *JobScheduler
 	workerLimit int
+	wg          sync.WaitGroup
 }
 
 func NewWorkerPool(
@@ -31,11 +33,12 @@ func NewWorkerPool(
 	storer storage.AssetStorer,
 	logger log.Logger,
 	transcoder transcode.Transcoder,
+	pollInterval time.Duration,
 	workerLimit int,
 ) *WorkerPool {
 	jobCh := make(chan *job.Job, workerLimit)
 
-	scheduler := NewJobScheduler(findNextUC, logger, jobCh, 10*time.Second, workerLimit)
+	scheduler := NewJobScheduler(findNextUC, logger, jobCh, pollInterval, workerLimit)
 
 	return &WorkerPool{
 		startUC,
@@ -47,19 +50,31 @@ func NewWorkerPool(
 		jobCh,
 		scheduler,
 		workerLimit,
+		sync.WaitGroup{},
 	}
 }
 
 func (p *WorkerPool) Start(ctx context.Context) {
-	go p.scheduler.Run(ctx)
+	p.wg.Add(1)
+	go func() {
+		defer p.wg.Done()
+		p.scheduler.Run(ctx)
+		close(p.jobCh)
+	}()
 
 	for range p.workerLimit {
+		p.wg.Add(1)
 		go func() {
+			defer p.wg.Done()
 			worker := NewTranscodeWorker(
 				p.startUC, p.completeUC, p.failUC,
 				p.storer, p.logger, p.transcoder, p.jobCh,
 			)
-			worker.Start(ctx)
+			worker.Start()
 		}()
 	}
+}
+
+func (p *WorkerPool) Wait() {
+	p.wg.Wait()
 }

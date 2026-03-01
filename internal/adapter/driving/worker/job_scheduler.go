@@ -36,7 +36,7 @@ func NewJobScheduler(
 }
 
 func (s *JobScheduler) Run(ctx context.Context) {
-	s.logger.Infof("starting worker pool")
+	s.logger.Infof("job scheduler started")
 
 	ticker := time.NewTicker(s.pollInterval)
 	defer ticker.Stop()
@@ -44,7 +44,7 @@ func (s *JobScheduler) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			s.logger.Infof("shutting down worker pool")
+			s.logger.Infof("job scheduler shutting down")
 			return
 		case <-ticker.C:
 			job, err := s.findNextUC.Execute(ctx)

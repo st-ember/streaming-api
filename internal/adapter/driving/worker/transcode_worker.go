@@ -42,22 +42,15 @@ func NewTranscodeWorker(
 	}
 }
 
-func (w *TranscodeWorker) Start(ctx context.Context) {
-	for {
-		select {
-		case <-ctx.Done():
-			w.logger.Infof("worker shutting down")
-			return
-		case job, ok := <-w.jobCh:
-			if !ok {
-				w.logger.Infof("job channel closed → worker exiting")
-				return
-			}
+func (w *TranscodeWorker) Start() {
+	for job := range w.jobCh {
+		func() {
+			ctx := context.Background()
 
 			resp, err := w.startUC.Execute(ctx, job)
 			if err != nil {
 				w.logger.Errorf("start job %s: %v", job.ID, err)
-				continue
+				return
 			}
 
 			out, err := w.transcoder.Transcode(ctx, resp.ResourceID, resp.SourceFilename)
@@ -65,7 +58,7 @@ func (w *TranscodeWorker) Start(ctx context.Context) {
 				// Execute fail transcode job usecase
 				w.failUC.Execute(ctx, job, err.Error())
 				w.logger.Errorf("transcode job %s: %v", job.ID, err)
-				continue
+				return
 			}
 
 			tempOutputDir := filepath.Dir(out.ManifestPath)
@@ -99,6 +92,7 @@ func (w *TranscodeWorker) Start(ctx context.Context) {
 			if err := w.completeUC.Execute(ctx, job, out.ManifestPath, out.Duration); err != nil {
 				w.logger.Errorf("complete job %s: %v", job.ID, err)
 			}
-		}
+		}()
 	}
+	w.logger.Infof("worker finished draining queue and is shutting down")
 }

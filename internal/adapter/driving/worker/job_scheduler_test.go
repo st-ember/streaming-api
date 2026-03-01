@@ -24,8 +24,8 @@ func TestJobScheduler_Run(t *testing.T) {
 		ctx, cancel := context.WithCancel(t.Context())
 		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond, 5)
 
-		logger.EXPECT().Infof("starting worker pool").Once()
-		logger.EXPECT().Infof("shutting down worker pool").Once()
+		logger.EXPECT().Infof("job scheduler started").Once()
+		logger.EXPECT().Infof("job scheduler shutting down").Once()
 
 		findNextUC.EXPECT().Execute(mock.Anything).Return(nil, nil).Maybe()
 
@@ -55,13 +55,13 @@ func TestJobScheduler_Run(t *testing.T) {
 
 		testJob, _ := job.NewJob("job-1", "video-1", job.TypeTranscode)
 
-		logger.EXPECT().Infof("starting worker pool").Once()
+		logger.EXPECT().Infof("job scheduler started").Once()
 		findNextUC.EXPECT().Execute(mock.Anything).Return(testJob, nil).Once()
 		logger.EXPECT().Infof("job %s is added to queue", mock.Anything).Once()
 
 		// Setup expectations for subsequent iterations to avoid noise or allow shutdown
 		findNextUC.EXPECT().Execute(mock.Anything).Return(nil, nil).Maybe()
-		logger.EXPECT().Infof("shutting down worker pool").Maybe()
+		logger.EXPECT().Infof("job scheduler shutting down").Maybe()
 
 		go s.Run(t.Context())
 
@@ -80,10 +80,10 @@ func TestJobScheduler_Run(t *testing.T) {
 
 		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond, 5)
 
-		logger.EXPECT().Infof("starting worker pool").Once()
+		logger.EXPECT().Infof("job scheduler started").Once()
 		findNextUC.EXPECT().Execute(mock.Anything).Return(nil, sql.ErrNoRows).Once()
 		findNextUC.EXPECT().Execute(mock.Anything).Return(nil, nil).Maybe()
-		logger.EXPECT().Infof("shutting down worker pool").Maybe()
+		logger.EXPECT().Infof("job scheduler shutting down").Maybe()
 
 		go s.Run(t.Context())
 
@@ -98,12 +98,12 @@ func TestJobScheduler_Run(t *testing.T) {
 
 		s := worker.NewJobScheduler(findNextUC, logger, jobCh, 10*time.Millisecond, 5)
 
-		logger.EXPECT().Infof("starting worker pool").Once()
+		logger.EXPECT().Infof("job scheduler started").Once()
 		findNextUC.EXPECT().Execute(mock.Anything).Return(nil, errors.New("db error")).Once()
 		logger.EXPECT().Errorf(mock.Anything, mock.Anything).Once()
 
 		findNextUC.EXPECT().Execute(mock.Anything).Return(nil, nil).Maybe()
-		logger.EXPECT().Infof("shutting down worker pool").Maybe()
+		logger.EXPECT().Infof("job scheduler shutting down").Maybe()
 
 		go s.Run(t.Context())
 
@@ -123,12 +123,12 @@ func TestJobScheduler_Run(t *testing.T) {
 		// Fill the channel
 		jobCh <- testJob1
 
-		logger.EXPECT().Infof("starting worker pool").Once()
+		logger.EXPECT().Infof("job scheduler started").Once()
 		findNextUC.EXPECT().Execute(mock.Anything).Return(testJob2, nil).Once()
 		logger.EXPECT().Infof("job queue full now, will try again in %v seconds", mock.Anything).Once()
 
 		findNextUC.EXPECT().Execute(mock.Anything).Return(nil, nil).Maybe()
-		logger.EXPECT().Infof("shutting down worker pool").Maybe()
+		logger.EXPECT().Infof("job scheduler shutting down").Maybe()
 
 		go s.Run(t.Context())
 
