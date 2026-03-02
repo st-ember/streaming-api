@@ -1,15 +1,14 @@
-package handler_test
+package handler
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/st-ember/streaming-api/internal/adapter/driving/http/handler"
 	mocklog "github.com/st-ember/streaming-api/internal/application/ports/log/mocks"
 	"github.com/st-ember/streaming-api/internal/application/videoapp"
 	mockvideo "github.com/st-ember/streaming-api/internal/application/videoapp/mocks"
@@ -18,49 +17,57 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestVideoHandler_Get(t *testing.T) {
+func TestVideoHandler_Update(t *testing.T) {
 	t.Run("should return 200 OK and video info on success", func(t *testing.T) {
 		mockUploadUC := mockvideo.NewMockUploadVideoUsecase(t)
 		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
 		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
 		mockLogger := mocklog.NewMockLogger(t)
-		h := handler.NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockLogger)
+		h := NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockLogger)
 
+		// Video that will be returned by usecase
 		videoID := "video-123"
 		resourceID := "resource-123"
-		v, _ := video.NewVideo(videoID, "Test Video", "Description", "test.mp4", resourceID)
-		v.Duration = 120 * time.Second
 
-		usecaseResult := &videoapp.GetVideoInfoResult{
-			Video:        v,
-			ManifestPath: "storage/video-123/manifest.m3u8",
-			ErrorMsg:     "",
+		newTitle := "new_title"
+		updatedVideo, err := video.NewVideo(videoID, newTitle, "Description", "test.mp4", resourceID)
+		require.NoError(t, err)
+
+		updateInput := videoapp.UpdateVideoInput{
+			ID:    videoID,
+			Title: &newTitle,
 		}
 
-		mockGetInfoUC.EXPECT().
-			Execute(mock.Anything, videoID).
-			Return(usecaseResult, nil).
+		mockUpdateUC.EXPECT().
+			Execute(mock.Anything, updateInput).
+			Return(updatedVideo, nil).
 			Once()
 
-		req := httptest.NewRequest(http.MethodGet, "/api/video/"+videoID, nil)
+		// Prepare request body
+		updateReq := UpdateVideoRequest{
+			Title: &newTitle,
+		}
+		body, err := json.Marshal(updateReq)
+		require.NoError(t, err)
+
+		req := httptest.NewRequest(http.MethodPatch, "/api/video/"+videoID, bytes.NewReader(body))
+
 		// Manually set gorilla/mux vars
 		req = mux.SetURLVars(req, map[string]string{"id": videoID})
 
 		rr := httptest.NewRecorder()
 
-		h.Get(rr, req)
+		h.Update(rr, req)
 
 		require.Equal(t, http.StatusOK, rr.Code)
 		require.Equal(t, "application/json", rr.Header().Get("Content-Type"))
 
-		var resp handler.GetVideoInfoResponse
-		err := json.NewDecoder(rr.Body).Decode(&resp)
+		var resp *video.Video
+		err = json.NewDecoder(rr.Body).Decode(&resp)
 		require.NoError(t, err)
 
 		require.Equal(t, videoID, resp.ID)
-		require.Equal(t, "Test Video", resp.Title)
-		require.Equal(t, 120.0, resp.Duration)
-		require.Equal(t, usecaseResult.ManifestPath, resp.ManifestPath)
+		require.Equal(t, newTitle, resp.Title)
 	})
 
 	t.Run("should return 500 Internal Server Error if usecase fails", func(t *testing.T) {
@@ -68,21 +75,29 @@ func TestVideoHandler_Get(t *testing.T) {
 		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
 		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
 		mockLogger := mocklog.NewMockLogger(t)
-		h := handler.NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockLogger)
+		h := NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockLogger)
 
 		videoID := "video-123"
-		mockGetInfoUC.EXPECT().
-			Execute(mock.Anything, videoID).
+		updateInput := videoapp.UpdateVideoInput{
+			ID: videoID,
+		}
+		mockUpdateUC.EXPECT().
+			Execute(mock.Anything, updateInput).
 			Return(nil, errors.New("db failure")).
 			Once()
 
 		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything).Once()
 
-		req := httptest.NewRequest(http.MethodGet, "/api/video/"+videoID, nil)
+		// Prepare request body
+		updateReq := UpdateVideoRequest{}
+		body, err := json.Marshal(updateReq)
+		require.NoError(t, err)
+
+		req := httptest.NewRequest(http.MethodPatch, "/api/video/"+videoID, bytes.NewReader(body))
 		req = mux.SetURLVars(req, map[string]string{"id": videoID})
 		rr := httptest.NewRecorder()
 
-		h.Get(rr, req)
+		h.Update(rr, req)
 
 		require.Equal(t, http.StatusInternalServerError, rr.Code)
 	})

@@ -14,25 +14,27 @@ type Router struct {
 var (
 	GET    = "GET"
 	POST   = "POST"
-	PUT    = "PUT"
+	PATCH  = "PATCH"
 	DELETE = "DELETE"
 )
 
 func NewRouter(
 	uploadVideoUC videoapp.UploadVideoUsecase,
 	getInfoUC videoapp.GetVideoInfoUsecase,
+	updateVideoUC videoapp.UpdateVideoUsecase,
 	logger log.Logger,
 ) *Router {
 	r := mux.NewRouter()
 
 	api := r.PathPrefix("/api").Subrouter()
 
-	videoH := handler.NewVideoHandler(uploadVideoUC, getInfoUC, logger)
+	videoH := handler.NewVideoHandler(uploadVideoUC, getInfoUC, updateVideoUC, logger)
 
 	// video
 	videoRouter := api.PathPrefix("/video").Subrouter()
 	videoRouter.HandleFunc("/", videoH.Upload).Methods(POST)
 	videoRouter.HandleFunc("/{id}", videoH.Get).Methods(GET)
+	videoRouter.HandleFunc("/{id}", videoH.Update).Methods(PATCH)
 
 	return &Router{MuxRt: r}
 }
