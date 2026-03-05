@@ -23,8 +23,9 @@ func TestVideoHandler_Upload(t *testing.T) {
 		mockUC := mockvideo.NewMockUploadVideoUsecase(t)
 		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
 		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
+		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockLogger)
+		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
 
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
@@ -61,8 +62,9 @@ func TestVideoHandler_Upload(t *testing.T) {
 		mockUC := mockvideo.NewMockUploadVideoUsecase(t)
 		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
 		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
+		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockLogger)
+		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
 
 		// Send a plain text body instead of multipart
 		body := bytes.NewBufferString("not a multipart form")
@@ -83,8 +85,9 @@ func TestVideoHandler_Upload(t *testing.T) {
 		mockUC := mockvideo.NewMockUploadVideoUsecase(t)
 		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
 		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
+		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockLogger)
+		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
 
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
@@ -106,8 +109,9 @@ func TestVideoHandler_Upload(t *testing.T) {
 		mockUC := mockvideo.NewMockUploadVideoUsecase(t)
 		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
 		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
+		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockLogger)
+		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
 
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)

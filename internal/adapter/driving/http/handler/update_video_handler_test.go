@@ -22,8 +22,9 @@ func TestVideoHandler_Update(t *testing.T) {
 		mockUploadUC := mockvideo.NewMockUploadVideoUsecase(t)
 		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
 		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
+		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockLogger)
+		h := NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
 
 		// Video that will be returned by usecase
 		videoID := "video-123"
@@ -74,8 +75,9 @@ func TestVideoHandler_Update(t *testing.T) {
 		mockUploadUC := mockvideo.NewMockUploadVideoUsecase(t)
 		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
 		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
+		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockLogger)
+		h := NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
 
 		videoID := "video-123"
 		updateInput := videoapp.UpdateVideoInput{
