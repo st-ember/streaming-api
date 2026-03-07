@@ -106,6 +106,74 @@ func (_c *MockVideoRepo_FindByID_Call) RunAndReturn(run func(ctx context.Context
 	return _c
 }
 
+// List provides a mock function for the type MockVideoRepo
+func (_mock *MockVideoRepo) List(ctx context.Context, page int) ([]*video.Video, error) {
+	ret := _mock.Called(ctx, page)
+
+	if len(ret) == 0 {
+		panic("no return value specified for List")
+	}
+
+	var r0 []*video.Video
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) ([]*video.Video, error)); ok {
+		return returnFunc(ctx, page)
+	}
+	if returnFunc, ok := ret.Get(0).(func(context.Context, int) []*video.Video); ok {
+		r0 = returnFunc(ctx, page)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*video.Video)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func(context.Context, int) error); ok {
+		r1 = returnFunc(ctx, page)
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockVideoRepo_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockVideoRepo_List_Call struct {
+	*mock.Call
+}
+
+// List is a helper method to define mock.On call
+//   - ctx context.Context
+//   - page int
+func (_e *MockVideoRepo_Expecter) List(ctx interface{}, page interface{}) *MockVideoRepo_List_Call {
+	return &MockVideoRepo_List_Call{Call: _e.mock.On("List", ctx, page)}
+}
+
+func (_c *MockVideoRepo_List_Call) Run(run func(ctx context.Context, page int)) *MockVideoRepo_List_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		var arg0 context.Context
+		if args[0] != nil {
+			arg0 = args[0].(context.Context)
+		}
+		var arg1 int
+		if args[1] != nil {
+			arg1 = args[1].(int)
+		}
+		run(
+			arg0,
+			arg1,
+		)
+	})
+	return _c
+}
+
+func (_c *MockVideoRepo_List_Call) Return(videos []*video.Video, err error) *MockVideoRepo_List_Call {
+	_c.Call.Return(videos, err)
+	return _c
+}
+
+func (_c *MockVideoRepo_List_Call) RunAndReturn(run func(ctx context.Context, page int) ([]*video.Video, error)) *MockVideoRepo_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Save provides a mock function for the type MockVideoRepo
 func (_mock *MockVideoRepo) Save(ctx context.Context, video1 *video.Video) error {
 	ret := _mock.Called(ctx, video1)

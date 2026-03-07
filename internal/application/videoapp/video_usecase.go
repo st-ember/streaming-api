@@ -5,4 +5,5 @@ type VideoUsecase struct {
 	GetInfo GetVideoInfoUsecase
 	Update  UpdateVideoUsecase
 	Archive ArchiveVideoUsecase
+	List    ListVideosUsecase
 }

@@ -75,3 +75,44 @@ func (r *PostgresVideoRepo) FindByID(ctx context.Context, id string) (*video.Vid
 
 	return v, nil
 }
+
+func (r *PostgresVideoRepo) List(ctx context.Context, page int) ([]*video.Video, error) {
+	offset := (page - 1) * 10
+	query := `
+		SELECT id, title, description, duration, filename,
+		resource_id, status, created_at, updated_at
+		FROM videos
+		WHERE status = 'published'
+		LIMIT 10 OFFSET $1
+	`
+	rows, err := r.tx.QueryContext(ctx, query, offset)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get riddles at storage layer: %w", err)
+	}
+	defer rows.Close()
+
+	vs := make([]*video.Video, 0, 10)
+	for rows.Next() {
+		v := &video.Video{}
+		err := rows.Scan(
+			&v.ID,
+			&v.Title,
+			&v.Description,
+			&v.Duration,
+			&v.Filename,
+			&v.ResourceID,
+			&v.Status,
+			&v.CreatedAt,
+			&v.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("scan videos: %w", err)
+		}
+		vs = append(vs, v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("row iteration error: %w", err)
+	}
+
+	return vs, nil
+}

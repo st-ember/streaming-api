@@ -34,6 +34,7 @@ func NewRouter(
 	videoRouter.HandleFunc("/{id}", videoH.Get).Methods(GET)
 	videoRouter.HandleFunc("/{id}", videoH.Update).Methods(PATCH)
 	videoRouter.HandleFunc("/{id}", videoH.Archive).Methods(DELETE)
+	videoRouter.HandleFunc("/", videoH.List).Methods(GET).Queries("page", "{page:[0-9]+}")
 
 	return &Router{MuxRt: r}
 }
