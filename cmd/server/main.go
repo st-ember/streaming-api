@@ -63,6 +63,13 @@ func main() {
 	updateVideoUC := videoapp.NewUpdateVideoUsecase(uowFactory)
 	archiveVideoUC := videoapp.NewArchiveVideoUsecase(uowFactory)
 
+	videoUCs := videoapp.VideoUsecase{
+		Upload:  uploadVideoUC,
+		GetInfo: getInfoUC,
+		Update:  updateVideoUC,
+		Archive: archiveVideoUC,
+	}
+
 	// Driving adapter (Worker)
 	workerPool := worker.NewWorkerPool(
 		findNextUC, startTranscodeUC, completeTranscodeUC, failTranscodeUC,
@@ -71,7 +78,7 @@ func main() {
 	workerPool.Start(ctx)
 
 	// Driving adapter (HTTP)
-	router := adpHttp.NewRouter(uploadVideoUC, getInfoUC, updateVideoUC, archiveVideoUC, logger)
+	router := adpHttp.NewRouter(videoUCs, logger)
 
 	// Server config
 	srv := &http.Server{

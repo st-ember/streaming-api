@@ -13,7 +13,7 @@ func (h *VideoHandler) Get(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 
 	// Execute usecase
-	info, err := h.getVideoUC.Execute(r.Context(), id)
+	info, err := h.videoUC.GetInfo.Execute(r.Context(), id)
 	if err != nil {
 		http.Error(w, "failed to find video info", http.StatusInternalServerError)
 		h.logger.Errorf("find video %s: %v", err)

@@ -20,12 +20,12 @@ import (
 
 func TestVideoHandler_Get(t *testing.T) {
 	t.Run("should return 200 OK and video info on success", func(t *testing.T) {
-		mockUploadUC := mockvideo.NewMockUploadVideoUsecase(t)
 		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
-		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
-		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
+		videoUC := videoapp.VideoUsecase{
+			GetInfo: mockGetInfoUC,
+		}
 		mockLogger := mocklog.NewMockLogger(t)
-		h := handler.NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
+		h := handler.NewVideoHandler(videoUC, mockLogger)
 
 		videoID := "video-123"
 		resourceID := "resource-123"
@@ -65,12 +65,12 @@ func TestVideoHandler_Get(t *testing.T) {
 	})
 
 	t.Run("should return 500 Internal Server Error if usecase fails", func(t *testing.T) {
-		mockUploadUC := mockvideo.NewMockUploadVideoUsecase(t)
 		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
-		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
-		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
+		videoUC := videoapp.VideoUsecase{
+			GetInfo: mockGetInfoUC,
+		}
 		mockLogger := mocklog.NewMockLogger(t)
-		h := handler.NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
+		h := handler.NewVideoHandler(videoUC, mockLogger)
 
 		videoID := "video-123"
 		mockGetInfoUC.EXPECT().

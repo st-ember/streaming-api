@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/st-ember/streaming-api/internal/adapter/driving/http/handler"
 	mocklog "github.com/st-ember/streaming-api/internal/application/ports/log/mocks"
+	"github.com/st-ember/streaming-api/internal/application/videoapp"
 	mockvideo "github.com/st-ember/streaming-api/internal/application/videoapp/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -16,12 +17,12 @@ import (
 
 func TestVideoHandler_Archive(t *testing.T) {
 	t.Run("should return 200 OK on success", func(t *testing.T) {
-		mockUploadUC := mockvideo.NewMockUploadVideoUsecase(t)
-		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
-		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
 		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
+		videoUC := videoapp.VideoUsecase{
+			Archive: mockArchiveUC,
+		}
 		mockLogger := mocklog.NewMockLogger(t)
-		h := handler.NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
+		h := handler.NewVideoHandler(videoUC, mockLogger)
 
 		videoID := "video-123"
 
@@ -42,12 +43,12 @@ func TestVideoHandler_Archive(t *testing.T) {
 	})
 
 	t.Run("should return 500 Internal Server Error if usecase fails", func(t *testing.T) {
-		mockUploadUC := mockvideo.NewMockUploadVideoUsecase(t)
-		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
-		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
 		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
+		videoUC := videoapp.VideoUsecase{
+			Archive: mockArchiveUC,
+		}
 		mockLogger := mocklog.NewMockLogger(t)
-		h := handler.NewVideoHandler(mockUploadUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
+		h := handler.NewVideoHandler(videoUC, mockLogger)
 
 		videoID := "video-123"
 		mockArchiveUC.EXPECT().

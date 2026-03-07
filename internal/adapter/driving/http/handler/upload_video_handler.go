@@ -38,7 +38,7 @@ func (h *VideoHandler) Upload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute usecase
-	result, err := h.uploadVideoUC.Execute(r.Context(), input)
+	result, err := h.videoUC.Upload.Execute(r.Context(), input)
 	if err != nil {
 		h.logger.Errorf("execute upload video usecase: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)

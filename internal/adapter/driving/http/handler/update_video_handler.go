@@ -30,7 +30,7 @@ func (h *VideoHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute usecase
-	v, err := h.updateVideoUC.Execute(r.Context(), input)
+	v, err := h.videoUC.Update.Execute(r.Context(), input)
 	if err != nil {
 		h.logger.Errorf("update video %s: %v", id, err)
 		http.Error(w, "internal error", http.StatusInternalServerError)

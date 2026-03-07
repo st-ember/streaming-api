@@ -6,25 +6,16 @@ import (
 )
 
 type VideoHandler struct {
-	uploadVideoUC  videoapp.UploadVideoUsecase
-	getVideoUC     videoapp.GetVideoInfoUsecase
-	updateVideoUC  videoapp.UpdateVideoUsecase
-	archiveVideoUC videoapp.ArchiveVideoUsecase
-	logger         log.Logger
+	videoUC videoapp.VideoUsecase
+	logger  log.Logger
 }
 
 func NewVideoHandler(
-	uploadVideoUC videoapp.UploadVideoUsecase,
-	getVideoInfoUC videoapp.GetVideoInfoUsecase,
-	updateVideuoUC videoapp.UpdateVideoUsecase,
-	archiveVideoUC videoapp.ArchiveVideoUsecase,
+	videoUC videoapp.VideoUsecase,
 	logger log.Logger,
 ) *VideoHandler {
 	return &VideoHandler{
-		uploadVideoUC,
-		getVideoInfoUC,
-		updateVideuoUC,
-		archiveVideoUC,
+		videoUC,
 		logger,
 	}
 }

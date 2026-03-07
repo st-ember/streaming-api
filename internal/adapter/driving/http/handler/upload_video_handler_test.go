@@ -20,12 +20,11 @@ import (
 
 func TestVideoHandler_Upload(t *testing.T) {
 	t.Run("should return 201 Created and IDs on success", func(t *testing.T) {
-		mockUC := mockvideo.NewMockUploadVideoUsecase(t)
-		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
-		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
-		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
+		mockUploadUC := mockvideo.NewMockUploadVideoUsecase(t)
+		videoUC := videoapp.VideoUsecase{Upload: mockUploadUC}
+
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
+		h := NewVideoHandler(videoUC, mockLogger)
 
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
@@ -38,7 +37,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 		v, _ := video.NewVideo("vid-1", "Test Video", "Desc", "test.mp4", "res-1")
 		j, _ := job.NewJob("job-1", "vid-1", job.TypeTranscode)
 
-		mockUC.EXPECT().
+		mockUploadUC.EXPECT().
 			Execute(mock.Anything, mock.MatchedBy(func(in videoapp.UploadVideoInput) bool {
 				return in.Title == "Test Video" && in.FileName == "test.mp4"
 			})).
@@ -59,12 +58,9 @@ func TestVideoHandler_Upload(t *testing.T) {
 	})
 
 	t.Run("should return 400 Bad Request if multipart form is invalid", func(t *testing.T) {
-		mockUC := mockvideo.NewMockUploadVideoUsecase(t)
-		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
-		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
-		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
+		videoUC := videoapp.VideoUsecase{}
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
+		h := NewVideoHandler(videoUC, mockLogger)
 
 		// Send a plain text body instead of multipart
 		body := bytes.NewBufferString("not a multipart form")
@@ -82,12 +78,9 @@ func TestVideoHandler_Upload(t *testing.T) {
 	})
 
 	t.Run("should return 400 Bad Request if video file is missing in form", func(t *testing.T) {
-		mockUC := mockvideo.NewMockUploadVideoUsecase(t)
-		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
-		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
-		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
+		videoUC := videoapp.VideoUsecase{}
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
+		h := NewVideoHandler(videoUC, mockLogger)
 
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
@@ -106,12 +99,12 @@ func TestVideoHandler_Upload(t *testing.T) {
 	})
 
 	t.Run("should return 500 Internal Server Error if usecase fails", func(t *testing.T) {
-		mockUC := mockvideo.NewMockUploadVideoUsecase(t)
-		mockGetInfoUC := mockvideo.NewMockGetVideoInfoUsecase(t)
-		mockUpdateUC := mockvideo.NewMockUpdateVideoUsecase(t)
-		mockArchiveUC := mockvideo.NewMockArchiveVideoUsecase(t)
+		mockUploadUC := mockvideo.NewMockUploadVideoUsecase(t)
+		videoUC := videoapp.VideoUsecase{
+			Upload: mockUploadUC,
+		}
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(mockUC, mockGetInfoUC, mockUpdateUC, mockArchiveUC, mockLogger)
+		h := NewVideoHandler(videoUC, mockLogger)
 
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
@@ -119,7 +112,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 		_, _ = part.Write([]byte("content"))
 		_ = writer.Close()
 
-		mockUC.EXPECT().Execute(mock.Anything, mock.Anything).
+		mockUploadUC.EXPECT().Execute(mock.Anything, mock.Anything).
 			Return(nil, errors.New("db error")).
 			Once()
 
