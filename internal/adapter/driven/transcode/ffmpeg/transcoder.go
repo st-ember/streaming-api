@@ -82,8 +82,6 @@ func (t *FFMPEGTranscoder) Transcode(ctx context.Context, resourceID, sourceFile
 		return nil, fmt.Errorf("create temporary directory for output: %w", err)
 	}
 
-	// TODO: worker will need to delete the temp dir
-
 	manifestPath := filepath.Join(outputDir, "manifest.mpd")
 
 	args := []string{
