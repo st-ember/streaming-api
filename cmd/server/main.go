@@ -62,12 +62,14 @@ func main() {
 	getInfoUC := videoapp.NewGetVideoInfoUsecase(uowFactory)
 	updateVideoUC := videoapp.NewUpdateVideoUsecase(uowFactory)
 	archiveVideoUC := videoapp.NewArchiveVideoUsecase(uowFactory)
+	listVideoUC := videoapp.NewListVideoUsecase(uowFactory)
 
 	videoUCs := videoapp.VideoUsecase{
 		Upload:  uploadVideoUC,
 		GetInfo: getInfoUC,
 		Update:  updateVideoUC,
 		Archive: archiveVideoUC,
+		List:    listVideoUC,
 	}
 
 	// Driving adapter (Worker)
