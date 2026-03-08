@@ -3,26 +3,29 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
 type Config struct {
-	ConnStr        string
-	ServerAdd      string
-	StoragePath    string
-	WorkerLimit    int
-	PollInterval   time.Duration
-	WorkerWaitTime time.Duration
+	ConnStr           string
+	ServerAdd         string
+	StoragePath       string
+	WorkerLimit       int
+	PollInterval      time.Duration
+	WorkerWaitTime    time.Duration
+	CorsAllowedOrigin []string
 }
 
 func Load() *Config {
 	return &Config{
-		ConnStr:        getEnv("DB_URL", ""),
-		ServerAdd:      getEnv("SERVER_ADD", "8085"),
-		StoragePath:    getEnv("STORAGE_PATH", "./storage"),
-		WorkerLimit:    getEnvInt("WORKER_LIMIT", 5),
-		PollInterval:   time.Duration(getEnvInt("POLL_INTERVAL_SEC", 10)) * time.Second,
-		WorkerWaitTime: time.Duration(getEnvInt("WORKER_WAIT_SEC", 60)) * time.Second,
+		ConnStr:           getEnv("DB_URL", ""),
+		ServerAdd:         getEnv("SERVER_ADD", "8085"),
+		StoragePath:       getEnv("STORAGE_PATH", "./storage"),
+		WorkerLimit:       getEnvInt("WORKER_LIMIT", 5),
+		PollInterval:      time.Duration(getEnvInt("POLL_INTERVAL_SEC", 10)) * time.Second,
+		WorkerWaitTime:    time.Duration(getEnvInt("WORKER_WAIT_SEC", 60)) * time.Second,
+		CorsAllowedOrigin: getEnvStringSlice("CORS_ALLOWED_STRING", []string{"*"}),
 	}
 }
 
@@ -42,4 +45,13 @@ func getEnvInt(key string, fallback int) int {
 	}
 
 	return fallback
+}
+
+func getEnvStringSlice(key string, fallback []string) []string {
+	value, ok := os.LookupEnv(key)
+	if !ok {
+		return fallback
+	}
+
+	return strings.Split(value, ",")
 }

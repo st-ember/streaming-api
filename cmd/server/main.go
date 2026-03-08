@@ -78,11 +78,11 @@ func main() {
 	workerPool.Start(ctx)
 
 	// Driving adapter (HTTP)
-	router := adpHttp.NewRouter(videoUCs, logger)
+	router := adpHttp.NewRouter(videoUCs, cfg.StoragePath, cfg.CorsAllowedOrigin, logger)
 
 	// Server config
 	srv := &http.Server{
-		Handler:      router.MuxRt,
+		Handler:      router.Handler,
 		Addr:         ":" + cfg.ServerAdd,
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,

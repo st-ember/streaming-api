@@ -1,6 +1,9 @@
 package http
 
 import (
+	"net/http"
+
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/st-ember/streaming-api/internal/adapter/driving/http/handler"
 	"github.com/st-ember/streaming-api/internal/application/ports/log"
@@ -8,7 +11,8 @@ import (
 )
 
 type Router struct {
-	MuxRt *mux.Router
+	MuxRt   *mux.Router
+	Handler http.Handler
 }
 
 var (
@@ -42,5 +46,11 @@ func NewRouter(
 	streamingHandler := handler.NewStreamingHandler(storagePath, logger)
 	streamingRouter.HandleFunc("/{resourceID}/{filename}", streamingHandler.ServeFile).Methods(GET)
 
-	return &Router{MuxRt: r}
+	// cors config
+	allowedOrigins := handlers.AllowedOrigins(allowedCfg)
+
+	// apply router to cors handler
+	corsHandler := handlers.CORS(allowedOrigins)(r)
+
+	return &Router{MuxRt: r, Handler: corsHandler}
 }

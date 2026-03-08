@@ -26,6 +26,8 @@ services:
       DB_URL: "postgres://postgres:password@db:5432/streaming_api?sslmode=disable"
       STORAGE_PATH: "/app/storage"
       SERVER_ADD: "8085"
+      #DEV_ONLY
+      CORS_ALLOWED_ORIGINS: "*"
     depends_on:
       db:
         condition: service_healthy
