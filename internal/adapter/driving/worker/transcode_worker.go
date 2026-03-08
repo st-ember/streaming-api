@@ -89,7 +89,7 @@ func (w *TranscodeWorker) Start() {
 				}
 			}
 
-			if err := w.completeUC.Execute(ctx, job, out.ManifestPath, out.Duration); err != nil {
+			if err := w.completeUC.Execute(ctx, job, filepath.Base(out.ManifestPath), out.Duration); err != nil {
 				w.logger.Errorf("complete job %s: %v", job.ID, err)
 			}
 		}()
