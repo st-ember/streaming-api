@@ -7,6 +7,7 @@ type GetVideoInfoResponse struct {
 	Title          string    `json:"title"`
 	Description    string    `json:"description"`
 	SourceFilename string    `json:"source_filename"`
+	ResourceID     string    `json:"resource_id"`
 	Status         string    `json:"status"`
 	Duration       float64   `json:"duration_seconds"`
 	ManifestPath   string    `json:"manifest_path,omitempty"`

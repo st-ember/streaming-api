@@ -26,6 +26,7 @@ func (h *VideoHandler) Get(w http.ResponseWriter, r *http.Request) {
 		Title:          info.Video.Title,
 		Description:    info.Video.Description,
 		SourceFilename: info.Video.Filename,
+		ResourceID:     info.Video.ResourceID,
 		Status:         string(info.Video.Status),
 		Duration:       info.Video.Duration.Seconds(),
 		ManifestPath:   info.ManifestPath,
