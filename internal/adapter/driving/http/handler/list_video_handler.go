@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 func (h *VideoHandler) List(w http.ResponseWriter, r *http.Request) {
 	// Parse page param
-	pageStr := r.URL.Query().Get("page")
+	vars := mux.Vars(r)
+	pageStr := vars["page"]
 	page, err := strconv.Atoi(pageStr)
 	if err != nil {
 		h.logger.Errorf("parse page param %s: %v", pageStr, err)
