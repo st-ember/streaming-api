@@ -1,4 +1,4 @@
-package videoapp
+package videoapp_test
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 	logMocks "github.com/st-ember/streaming-api/internal/application/ports/log/mocks"
 	repoMocks "github.com/st-ember/streaming-api/internal/application/ports/repo/mocks"
 	storageMocks "github.com/st-ember/streaming-api/internal/application/ports/storage/mocks"
+	"github.com/st-ember/streaming-api/internal/application/videoapp"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -47,14 +48,14 @@ func TestUploadVideo_SuccessCase(t *testing.T) {
 	mockJobRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*job.Job")).Return(nil).Once()
 
 	// Mock input
-	input := UploadVideoInput{
+	input := videoapp.UploadVideoInput{
 		Title:        "My Test Video",
 		Description:  "A video for testing.",
 		FileName:     "test.mp4",
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
+	usecase := videoapp.NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -80,14 +81,14 @@ func TestUploadVideo_AssetStorerSaveFail(t *testing.T) {
 		Once()
 
 	// Mock input
-	input := UploadVideoInput{
+	input := videoapp.UploadVideoInput{
 		Title:        "My Test Video",
 		Description:  "A video for testing.",
 		FileName:     "test.mp4",
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
+	usecase := videoapp.NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -124,14 +125,14 @@ func TestUploadVideo_UOWFactoryReturnsError(t *testing.T) {
 		Once()
 
 	// Mock input
-	input := UploadVideoInput{
+	input := videoapp.UploadVideoInput{
 		Title:        "My Test Video",
 		Description:  "A video for testing.",
 		FileName:     "test.mp4",
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
+	usecase := videoapp.NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -181,14 +182,14 @@ func TestUploadVideo_VideoRepoSaveFail(t *testing.T) {
 		Return(expectedErr).Once()
 
 	// Mock input
-	input := UploadVideoInput{
+	input := videoapp.UploadVideoInput{
 		Title:        "My Test Video",
 		Description:  "A video for testing.",
 		FileName:     "test.mp4",
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
+	usecase := videoapp.NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -240,14 +241,14 @@ func TestUploadVideo_JobRepoSaveFail(t *testing.T) {
 		Return(expectedErr).Once()
 
 	// Mock input
-	input := UploadVideoInput{
+	input := videoapp.UploadVideoInput{
 		Title:        "My Test Video",
 		Description:  "A video for testing.",
 		FileName:     "test.mp4",
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
+	usecase := videoapp.NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -298,14 +299,14 @@ func TestUploadVideo_UOWCommitFail(t *testing.T) {
 	mockJobRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*job.Job")).Return(nil).Once()
 
 	// Mock input
-	input := UploadVideoInput{
+	input := videoapp.UploadVideoInput{
 		Title:        "My Test Video",
 		Description:  "A video for testing.",
 		FileName:     "test.mp4",
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
+	usecase := videoapp.NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)
@@ -359,14 +360,14 @@ func TestUploadVideo_CleanupFailsAfterRepoSaveFails(t *testing.T) {
 	mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
 
 	// Mock input
-	input := UploadVideoInput{
+	input := videoapp.UploadVideoInput{
 		Title:        "My Test Video",
 		Description:  "A video for testing.",
 		FileName:     "test.mp4",
 		VideoContent: strings.NewReader("fake video data"),
 	}
 	// Create usecase
-	usecase := NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
+	usecase := videoapp.NewUploadVideoUsecase(mockAsssetStorer, mockUowFactory, mockLogger)
 
 	// Execute usecase
 	resp, err := usecase.Execute(t.Context(), input)

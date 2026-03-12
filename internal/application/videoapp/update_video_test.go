@@ -1,10 +1,11 @@
-package videoapp
+package videoapp_test
 
 import (
 	"errors"
 	"testing"
 
 	repoMocks "github.com/st-ember/streaming-api/internal/application/ports/repo/mocks"
+	"github.com/st-ember/streaming-api/internal/application/videoapp"
 	"github.com/st-ember/streaming-api/internal/domain/video"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -43,12 +44,12 @@ func TestUpdateVideo_SuccessPartial(t *testing.T) {
 
 	// Partial Update: Only new title
 	newTitle := "New Awesome Title"
-	input := UpdateVideoInput{
+	input := videoapp.UpdateVideoInput{
 		ID:    videoID,
 		Title: &newTitle,
 	}
 
-	usecase := NewUpdateVideoUsecase(mockUowFactory)
+	usecase := videoapp.NewUpdateVideoUsecase(mockUowFactory)
 	result, err := usecase.Execute(t.Context(), input)
 
 	// Assert
@@ -74,8 +75,8 @@ func TestUpdateVideo_VideoNotFound(t *testing.T) {
 
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, videoID).Return(nil, expectedErr).Once()
 
-	input := UpdateVideoInput{ID: videoID}
-	usecase := NewUpdateVideoUsecase(mockUowFactory)
+	input := videoapp.UpdateVideoInput{ID: videoID}
+	usecase := videoapp.NewUpdateVideoUsecase(mockUowFactory)
 	result, err := usecase.Execute(t.Context(), input)
 
 	require.Error(t, err)
@@ -101,12 +102,12 @@ func TestUpdateVideo_DomainValidationError(t *testing.T) {
 
 	// Trying to update to an empty title (domain validation should fail)
 	invalidTitle := ""
-	input := UpdateVideoInput{
+	input := videoapp.UpdateVideoInput{
 		ID:    videoID,
 		Title: &invalidTitle,
 	}
 
-	usecase := NewUpdateVideoUsecase(mockUowFactory)
+	usecase := videoapp.NewUpdateVideoUsecase(mockUowFactory)
 	result, err := usecase.Execute(t.Context(), input)
 
 	require.Error(t, err)

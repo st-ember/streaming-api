@@ -1,9 +1,10 @@
-package video
+package video_test
 
 import (
 	"testing"
 	"time"
 
+	"github.com/st-ember/streaming-api/internal/domain/video"
 	"github.com/stretchr/testify/require"
 )
 
@@ -34,15 +35,15 @@ func TestNewVideo_SuccessCase(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 
 	h.NoError(err)
-	h.NotNil(video)
-	h.Equal(video.ID, h.mockID)
-	h.Equal(video.Title, h.mockTitle)
-	h.Equal(video.Description, h.mockDescription)
-	h.Equal(video.ResourceID, h.mockResourceID)
-	h.Equal(StatusPending, video.Status)
+	h.NotNil(v)
+	h.Equal(v.ID, h.mockID)
+	h.Equal(v.Title, h.mockTitle)
+	h.Equal(v.Description, h.mockDescription)
+	h.Equal(v.ResourceID, h.mockResourceID)
+	h.Equal(video.StatusPending, v.Status)
 }
 
 func TestNewVideo_EmptyID(t *testing.T) {
@@ -50,10 +51,10 @@ func TestNewVideo_EmptyID(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo("", h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo("", h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 
-	h.Nil(video)
-	h.ErrorIs(err, ErrVideoIDEmpty)
+	h.Nil(v)
+	h.ErrorIs(err, video.ErrVideoIDEmpty)
 }
 
 func TestNewVideo_EmptyFilename(t *testing.T) {
@@ -61,10 +62,10 @@ func TestNewVideo_EmptyFilename(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, "", h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, "", h.mockResourceID)
 
-	h.Nil(video)
-	h.ErrorIs(err, ErrFilenameEmpty)
+	h.Nil(v)
+	h.ErrorIs(err, video.ErrFilenameEmpty)
 }
 
 func TestNewVideo_EmptyResourceID(t *testing.T) {
@@ -72,10 +73,10 @@ func TestNewVideo_EmptyResourceID(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, "")
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, "")
 
-	h.Nil(video)
-	h.ErrorIs(err, ErrResourceIDEmpty)
+	h.Nil(v)
+	h.ErrorIs(err, video.ErrResourceIDEmpty)
 }
 
 func TestMarkAsProcessing_SuccessCaseFromPending(t *testing.T) {
@@ -83,12 +84,12 @@ func TestMarkAsProcessing_SuccessCaseFromPending(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 	h.NoError(err)
 
-	err = video.MarkAsProcessing()
+	err = v.MarkAsProcessing()
 	h.NoError(err)
-	h.Equal(StatusProcessing, video.Status)
+	h.Equal(video.StatusProcessing, v.Status)
 }
 
 func TestMarkAsProcessing_SuccessCaseFromFailed(t *testing.T) {
@@ -96,13 +97,13 @@ func TestMarkAsProcessing_SuccessCaseFromFailed(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 	h.NoError(err)
-	video.Status = StatusFailed // Manually set state for test
+	v.Status = video.StatusFailed // Manually set state for test
 
-	err = video.MarkAsProcessing()
+	err = v.MarkAsProcessing()
 	h.NoError(err)
-	h.Equal(StatusProcessing, video.Status)
+	h.Equal(video.StatusProcessing, v.Status)
 }
 
 func TestMarkAsProcessing_CannotProcessIfPublished(t *testing.T) {
@@ -110,12 +111,12 @@ func TestMarkAsProcessing_CannotProcessIfPublished(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 	h.NoError(err)
-	video.Status = StatusPublished
+	v.Status = video.StatusPublished
 
-	err = video.MarkAsProcessing()
-	h.ErrorIs(err, ErrCannotBeMarkedAsProcessing)
+	err = v.MarkAsProcessing()
+	h.ErrorIs(err, video.ErrCannotBeMarkedAsProcessing)
 }
 
 func TestMarkAsProcessing_CannotProcessIfArchived(t *testing.T) {
@@ -123,12 +124,12 @@ func TestMarkAsProcessing_CannotProcessIfArchived(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 	h.NoError(err)
-	video.Status = StatusArchived
+	v.Status = video.StatusArchived
 
-	err = video.MarkAsProcessing()
-	h.ErrorIs(err, ErrCannotBeMarkedAsProcessing)
+	err = v.MarkAsProcessing()
+	h.ErrorIs(err, video.ErrCannotBeMarkedAsProcessing)
 }
 
 func TestMarkAsFailed_SuccessCase(t *testing.T) {
@@ -136,13 +137,13 @@ func TestMarkAsFailed_SuccessCase(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 	h.NoError(err)
-	video.Status = StatusProcessing // Can only fail if processing
+	v.Status = video.StatusProcessing // Can only fail if processing
 
-	err = video.MarkAsFailed()
+	err = v.MarkAsFailed()
 	h.NoError(err)
-	h.Equal(StatusFailed, video.Status)
+	h.Equal(video.StatusFailed, v.Status)
 }
 
 func TestMarkAsFailed_CannotFailIfNotProcessing(t *testing.T) {
@@ -150,12 +151,12 @@ func TestMarkAsFailed_CannotFailIfNotProcessing(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 	h.NoError(err)
-	h.Equal(StatusPending, video.Status) // Starts as pending
+	h.Equal(video.StatusPending, v.Status) // Starts as pending
 
-	err = video.MarkAsFailed()
-	h.ErrorIs(err, ErrCannotBeMarkedAsFailed)
+	err = v.MarkAsFailed()
+	h.ErrorIs(err, video.ErrCannotBeMarkedAsFailed)
 }
 
 func TestPublish_SuccessCase(t *testing.T) {
@@ -163,13 +164,13 @@ func TestPublish_SuccessCase(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 	h.NoError(err)
-	video.Status = StatusProcessing // Can only publish if processing
+	v.Status = video.StatusProcessing // Can only publish if processing
 
-	err = video.Publish()
+	err = v.Publish()
 	h.NoError(err)
-	h.Equal(StatusPublished, video.Status)
+	h.Equal(video.StatusPublished, v.Status)
 }
 
 func TestPublish_CannotPublishIfNotProcessing(t *testing.T) {
@@ -177,12 +178,12 @@ func TestPublish_CannotPublishIfNotProcessing(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 	h.NoError(err)
-	h.Equal(StatusPending, video.Status) // Starts as pending
+	h.Equal(video.StatusPending, v.Status) // Starts as pending
 
-	err = video.Publish()
-	h.ErrorIs(err, ErrCannotBePublished)
+	err = v.Publish()
+	h.ErrorIs(err, video.ErrCannotBePublished)
 }
 
 func TestArchive_SuccessCase(t *testing.T) {
@@ -190,13 +191,13 @@ func TestArchive_SuccessCase(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 	h.NoError(err)
-	video.Status = StatusPublished // Can only archive if published
+	v.Status = video.StatusPublished // Can only archive if published
 
-	err = video.Archive()
+	err = v.Archive()
 	h.NoError(err)
-	h.Equal(StatusArchived, video.Status)
+	h.Equal(video.StatusArchived, v.Status)
 }
 
 func TestArchive_CannotArchiveIfNotPublished(t *testing.T) {
@@ -204,96 +205,96 @@ func TestArchive_CannotArchiveIfNotPublished(t *testing.T) {
 
 	h := setupVideoTestHelper(t)
 
-	video, err := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, err := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 	h.NoError(err)
-	h.Equal(StatusPending, video.Status) // Starts as pending
+	h.Equal(video.StatusPending, v.Status) // Starts as pending
 
-	err = video.Archive()
-	h.ErrorIs(err, ErrCannotBeArchived)
+	err = v.Archive()
+	h.ErrorIs(err, video.ErrCannotBeArchived)
 }
 
 func TestUpdateTitle_SuccessCase(t *testing.T) {
 	t.Parallel()
 
 	h := setupVideoTestHelper(t)
-	video, _ := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
-	updatedAt := video.UpdatedAt
+	v, _ := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	updatedAt := v.UpdatedAt
 
 	newTitle := "new_title"
 	time.Sleep(1 * time.Nanosecond) // Ensure UpdatedAt changes
-	err := video.UpdateTitle(newTitle)
+	err := v.UpdateTitle(newTitle)
 
 	h.NoError(err)
-	h.Equal(newTitle, video.Title)
-	h.True(video.UpdatedAt.After(updatedAt))
+	h.Equal(newTitle, v.Title)
+	h.True(v.UpdatedAt.After(updatedAt))
 }
 
 func TestUpdateTitle_FailsOnEmptyTitle(t *testing.T) {
 	t.Parallel()
 
 	h := setupVideoTestHelper(t)
-	video, _ := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, _ := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 
-	err := video.UpdateTitle("")
-	h.ErrorIs(err, ErrTitleEmpty)
+	err := v.UpdateTitle("")
+	h.ErrorIs(err, video.ErrTitleEmpty)
 }
 
 func TestUpdateDescription_SuccessCase(t *testing.T) {
 	t.Parallel()
 
 	h := setupVideoTestHelper(t)
-	video, _ := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
-	updatedAt := video.UpdatedAt
+	v, _ := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	updatedAt := v.UpdatedAt
 
 	newDescription := "new_description"
 	time.Sleep(1 * time.Nanosecond) // Ensure UpdatedAt changes
-	err := video.UpdateDescription(newDescription)
+	err := v.UpdateDescription(newDescription)
 
 	h.NoError(err)
-	h.Equal(newDescription, video.Description)
-	h.True(video.UpdatedAt.After(updatedAt))
+	h.Equal(newDescription, v.Description)
+	h.True(v.UpdatedAt.After(updatedAt))
 }
 
 func TestUpdateDescription_FailsOnEmptyDescription(t *testing.T) {
 	t.Parallel()
 
 	h := setupVideoTestHelper(t)
-	video, _ := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, _ := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 
-	err := video.UpdateDescription("")
-	h.ErrorIs(err, ErrDescriptionEmpty)
+	err := v.UpdateDescription("")
+	h.ErrorIs(err, video.ErrDescriptionEmpty)
 }
 
 func TestUpdateDuration_SuccessCase(t *testing.T) {
 	t.Parallel()
 
 	h := setupVideoTestHelper(t)
-	video, _ := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, _ := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 
 	duration := 120 * time.Second
-	err := video.UpdateDuration(duration)
+	err := v.UpdateDuration(duration)
 
 	h.NoError(err)
-	h.Equal(duration, video.Duration)
+	h.Equal(duration, v.Duration)
 }
 
 func TestUpdateDuration_FailsIfAlreadySet(t *testing.T) {
 	t.Parallel()
 
 	h := setupVideoTestHelper(t)
-	video, _ := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
-	video.Duration = 100 * time.Second // Pre-set duration
+	v, _ := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v.Duration = 100 * time.Second // Pre-set duration
 
-	err := video.UpdateDuration(120 * time.Second)
-	h.ErrorIs(err, ErrDurationAlreadySet)
+	err := v.UpdateDuration(120 * time.Second)
+	h.ErrorIs(err, video.ErrDurationAlreadySet)
 }
 
 func TestUpdateDuration_FailsOnNegativeDuration(t *testing.T) {
 	t.Parallel()
 
 	h := setupVideoTestHelper(t)
-	video, _ := NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
+	v, _ := video.NewVideo(h.mockID, h.mockTitle, h.mockDescription, h.mockFilename, h.mockResourceID)
 
-	err := video.UpdateDuration(-10 * time.Second)
-	h.ErrorIs(err, ErrDurationNegative)
+	err := v.UpdateDuration(-10 * time.Second)
+	h.ErrorIs(err, video.ErrDurationNegative)
 }

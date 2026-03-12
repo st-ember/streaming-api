@@ -1,10 +1,11 @@
-package jobapp
+package jobapp_test
 
 import (
 	"errors"
 	"testing"
 	"time"
 
+	"github.com/st-ember/streaming-api/internal/application/jobapp"
 	repomocks "github.com/st-ember/streaming-api/internal/application/ports/repo/mocks"
 	"github.com/st-ember/streaming-api/internal/domain/job"
 	"github.com/st-ember/streaming-api/internal/domain/video"
@@ -44,7 +45,7 @@ func TestCompleteTranscodeJob_SuccessCase(t *testing.T) {
 	mockJobRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*job.Job")).Return(nil).Once()
 
 	// --- ACT ---
-	usecase := NewCompleteTranscodeJobUsecase(mockUowFactory)
+	usecase := jobapp.NewCompleteTranscodeJobUsecase(mockUowFactory)
 	err = usecase.Execute(t.Context(), startJob, "success", 120*time.Second)
 
 	// --- ASSERT ---
@@ -63,7 +64,7 @@ func TestCompleteTranscodeJob_FailsIfJobCannotBeCompleted(t *testing.T) {
 	startJob, _ := job.NewJob("job-id", "video-id", job.TypeTranscode)
 	startJob.Status = job.StatusCompleted
 
-	usecase := NewCompleteTranscodeJobUsecase(mockUowFactory)
+	usecase := jobapp.NewCompleteTranscodeJobUsecase(mockUowFactory)
 	err := usecase.Execute(t.Context(), startJob, "success", 120*time.Second)
 
 	// We expect a domain error here, before any mocks are called.
@@ -89,7 +90,7 @@ func TestCompleteTranscodeJob_FailsOnFindVideoByID(t *testing.T) {
 	mockUow.EXPECT().Rollback(mock.Anything).Return(nil).Once()
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, "video-id").Return(nil, expectedErr).Once()
 
-	usecase := NewCompleteTranscodeJobUsecase(mockUowFactory)
+	usecase := jobapp.NewCompleteTranscodeJobUsecase(mockUowFactory)
 	err := usecase.Execute(t.Context(), startJob, "success", 120*time.Second)
 
 	require.Error(t, err)
@@ -115,7 +116,7 @@ func TestCompleteTranscodeJob_FailsOnVideoPublish(t *testing.T) {
 	mockUow.EXPECT().Rollback(mock.Anything).Return(nil).Once()
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, "video-id").Return(relatedVideo, nil).Once()
 
-	usecase := NewCompleteTranscodeJobUsecase(mockUowFactory)
+	usecase := jobapp.NewCompleteTranscodeJobUsecase(mockUowFactory)
 	err := usecase.Execute(t.Context(), startJob, "success", 120*time.Second)
 
 	require.Error(t, err)
@@ -144,7 +145,7 @@ func TestCompleteTranscodeJob_FailsOnCommit(t *testing.T) {
 	mockVideoRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*video.Video")).Return(nil).Once()
 	mockJobRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*job.Job")).Return(nil).Once()
 
-	usecase := NewCompleteTranscodeJobUsecase(mockUowFactory)
+	usecase := jobapp.NewCompleteTranscodeJobUsecase(mockUowFactory)
 	err := usecase.Execute(t.Context(), startJob, "success", 120*time.Second)
 
 	require.Error(t, err)

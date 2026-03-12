@@ -31,8 +31,8 @@ type probeResult struct {
 	} `json:"format"`
 }
 
-// getDuration gets the duration of a video file in seconds.
-func (t *FFMPEGTranscoder) getDuration(ctx context.Context, sourcePath string) (time.Duration, error) {
+// GetDuration gets the duration of a video file in seconds.
+func (t *FFMPEGTranscoder) GetDuration(ctx context.Context, sourcePath string) (time.Duration, error) {
 	args := []string{
 		"-v", "quiet",
 		"-print_format", "json",
@@ -70,7 +70,7 @@ func (t *FFMPEGTranscoder) Transcode(ctx context.Context, resourceID, sourceFile
 	sourcePath := filepath.Join(t.basePath, resourceID, sourceFilename)
 
 	// Get duration
-	duration, err := t.getDuration(ctx, sourcePath)
+	duration, err := t.GetDuration(ctx, sourcePath)
 	if err != nil {
 		return nil, fmt.Errorf("get duration: %w", err)
 	}

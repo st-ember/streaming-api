@@ -1,10 +1,11 @@
-package videoapp
+package videoapp_test
 
 import (
 	"errors"
 	"testing"
 
 	repoMocks "github.com/st-ember/streaming-api/internal/application/ports/repo/mocks"
+	"github.com/st-ember/streaming-api/internal/application/videoapp"
 	"github.com/st-ember/streaming-api/internal/domain/job"
 	"github.com/st-ember/streaming-api/internal/domain/video"
 	"github.com/stretchr/testify/mock"
@@ -47,7 +48,7 @@ func TestGetVideoInfo_SuccessCase(t *testing.T) {
 	mockJobRepo.EXPECT().FindByVideoID(mock.Anything, videoID).Return(testJob, nil).Once()
 
 	// Create usecase
-	usecase := NewGetVideoInfoUsecase(mockUowFactory)
+	usecase := videoapp.NewGetVideoInfoUsecase(mockUowFactory)
 
 	// Execute
 	result, err := usecase.Execute(t.Context(), videoID)
@@ -78,7 +79,7 @@ func TestGetVideoInfo_VideoNotFound(t *testing.T) {
 
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, videoID).Return(nil, expectedErr).Once()
 
-	usecase := NewGetVideoInfoUsecase(mockUowFactory)
+	usecase := videoapp.NewGetVideoInfoUsecase(mockUowFactory)
 	result, err := usecase.Execute(t.Context(), videoID)
 
 	require.Error(t, err)
@@ -107,7 +108,7 @@ func TestGetVideoInfo_JobNotFound(t *testing.T) {
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, videoID).Return(testVideo, nil).Once()
 	mockJobRepo.EXPECT().FindByVideoID(mock.Anything, videoID).Return(nil, expectedErr).Once()
 
-	usecase := NewGetVideoInfoUsecase(mockUowFactory)
+	usecase := videoapp.NewGetVideoInfoUsecase(mockUowFactory)
 	result, err := usecase.Execute(t.Context(), videoID)
 
 	require.Error(t, err)

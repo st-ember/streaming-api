@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/st-ember/streaming-api/internal/adapter/driving/http/handler"
 	mocklog "github.com/st-ember/streaming-api/internal/application/ports/log/mocks"
 	"github.com/st-ember/streaming-api/internal/application/videoapp"
 	mockvideo "github.com/st-ember/streaming-api/internal/application/videoapp/mocks"
@@ -24,7 +25,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 		videoUC := videoapp.VideoUsecase{Upload: mockUploadUC}
 
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(videoUC, mockLogger)
+		h := handler.NewVideoHandler(videoUC, mockLogger)
 
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
@@ -51,7 +52,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 		h.Upload(w, req)
 
 		require.Equal(t, http.StatusCreated, w.Code)
-		var resp UploadVideoResponse
+		var resp handler.UploadVideoResponse
 		_ = json.NewDecoder(w.Body).Decode(&resp)
 		require.Equal(t, "vid-1", resp.VideoID)
 		require.Equal(t, "job-1", resp.JobID)
@@ -60,7 +61,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 	t.Run("should return 400 Bad Request if multipart form is invalid", func(t *testing.T) {
 		videoUC := videoapp.VideoUsecase{}
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(videoUC, mockLogger)
+		h := handler.NewVideoHandler(videoUC, mockLogger)
 
 		// Send a plain text body instead of multipart
 		body := bytes.NewBufferString("not a multipart form")
@@ -80,7 +81,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 	t.Run("should return 400 Bad Request if video file is missing in form", func(t *testing.T) {
 		videoUC := videoapp.VideoUsecase{}
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(videoUC, mockLogger)
+		h := handler.NewVideoHandler(videoUC, mockLogger)
 
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
@@ -104,7 +105,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 			Upload: mockUploadUC,
 		}
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(videoUC, mockLogger)
+		h := handler.NewVideoHandler(videoUC, mockLogger)
 
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)

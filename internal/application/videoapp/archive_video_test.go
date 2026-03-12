@@ -1,10 +1,11 @@
-package videoapp
+package videoapp_test
 
 import (
 	"errors"
 	"testing"
 
 	repoMocks "github.com/st-ember/streaming-api/internal/application/ports/repo/mocks"
+	"github.com/st-ember/streaming-api/internal/application/videoapp"
 	"github.com/st-ember/streaming-api/internal/domain/video"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -39,7 +40,7 @@ func TestArchiveVideo_SuccessCase(t *testing.T) {
 	mockVideoRepo.EXPECT().Save(mock.Anything, testVideo).Return(nil).Once()
 
 	// Create usecase
-	usecase := NewArchiveVideoUsecase(mockUowFactory)
+	usecase := videoapp.NewArchiveVideoUsecase(mockUowFactory)
 
 	// Execute
 	err := usecase.Execute(t.Context(), videoID)
@@ -64,7 +65,7 @@ func TestArchiveVideo_VideoNotFound(t *testing.T) {
 
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, videoID).Return(nil, errors.New("not found")).Once()
 
-	usecase := NewArchiveVideoUsecase(mockUowFactory)
+	usecase := videoapp.NewArchiveVideoUsecase(mockUowFactory)
 	err := usecase.Execute(t.Context(), videoID)
 
 	require.Error(t, err)
@@ -88,7 +89,7 @@ func TestArchiveVideo_InvalidStateTransition(t *testing.T) {
 
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, videoID).Return(testVideo, nil).Once()
 
-	usecase := NewArchiveVideoUsecase(mockUowFactory)
+	usecase := videoapp.NewArchiveVideoUsecase(mockUowFactory)
 	err := usecase.Execute(t.Context(), videoID)
 
 	require.Error(t, err)

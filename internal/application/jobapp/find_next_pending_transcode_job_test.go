@@ -1,9 +1,10 @@
-package jobapp
+package jobapp_test
 
 import (
 	"errors"
 	"testing"
 
+	"github.com/st-ember/streaming-api/internal/application/jobapp"
 	repomocks "github.com/st-ember/streaming-api/internal/application/ports/repo/mocks"
 	"github.com/st-ember/streaming-api/internal/domain/job"
 	"github.com/stretchr/testify/mock"
@@ -32,7 +33,7 @@ func TestFindNextPendingTranscodeJob_SuccessCase(t *testing.T) {
 	mockJobRepo.EXPECT().FindNextPendingTranscodeJob(mock.Anything).Return(expectedJob, nil).Once()
 
 	// Create usecase
-	usecase := NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
+	usecase := jobapp.NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
 
 	// Execute usecase
 	foundJob, err := usecase.Execute(t.Context())
@@ -60,7 +61,7 @@ func TestFindNextPendingTranscodeJob_JobRepoReturnsError(t *testing.T) {
 	mockJobRepo.EXPECT().FindNextPendingTranscodeJob(mock.Anything).Return(nil, expectedErr).Once()
 
 	// Create usecase
-	usecase := NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
+	usecase := jobapp.NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
 
 	// Execute usecase
 	foundJob, err := usecase.Execute(t.Context())
@@ -85,7 +86,7 @@ func TestFindNextPendingTranscodeJob_NoJobFound(t *testing.T) {
 	mockJobRepo.EXPECT().FindNextPendingTranscodeJob(mock.Anything).Return(nil, nil).Once()
 
 	// Create usecase
-	usecase := NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
+	usecase := jobapp.NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
 
 	// Execute usecase
 	foundJob, err := usecase.Execute(t.Context())

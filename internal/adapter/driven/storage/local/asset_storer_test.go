@@ -1,4 +1,4 @@
-package local
+package local_test
 
 import (
 	"os"
@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/st-ember/streaming-api/internal/adapter/driven/storage/local"
 	"github.com/stretchr/testify/require"
 )
 
@@ -18,7 +19,7 @@ func TestNewLocalAssetStorer(t *testing.T) {
 	// Path for a new directory that does not exist yet.
 	newBasePath := filepath.Join(tempDir, "new_storage")
 
-	storer, err := NewLocalAssetStorer(newBasePath)
+	storer, err := local.NewLocalAssetStorer(newBasePath)
 	require.NoError(t, err)
 	require.NotNil(t, storer)
 
@@ -32,7 +33,7 @@ func TestSave(t *testing.T) {
 
 	// --- ARRANGE ---
 	tempDir := t.TempDir()
-	storer, err := NewLocalAssetStorer(tempDir)
+	storer, err := local.NewLocalAssetStorer(tempDir)
 	require.NoError(t, err)
 
 	resourceID := "test-resource-123"
@@ -58,7 +59,7 @@ func TestDeleteAll(t *testing.T) {
 
 	// --- ARRANGE ---
 	tempDir := t.TempDir()
-	storer, err := NewLocalAssetStorer(tempDir)
+	storer, err := local.NewLocalAssetStorer(tempDir)
 	require.NoError(t, err)
 
 	resourceID := "test-resource-to-delete"

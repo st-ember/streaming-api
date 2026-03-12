@@ -1,4 +1,4 @@
-package ffmpeg
+package ffmpeg_test
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/st-ember/streaming-api/internal/adapter/driven/transcode/ffmpeg"
 	execmocks "github.com/st-ember/streaming-api/internal/application/ports/exec/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -38,8 +39,8 @@ func TestGetDuration_SuccessCase(t *testing.T) {
 	mockCmd.EXPECT().Run().Return(nil).Once()
 
 	// --- ACT ---
-	transcoder := NewFFMPEGTranscoder("/tmp", mockCommander)
-	duration, err := transcoder.getDuration(t.Context(), "/tmp/some/path.mp4")
+	transcoder := ffmpeg.NewFFMPEGTranscoder("/tmp", mockCommander)
+	duration, err := transcoder.GetDuration(t.Context(), "/tmp/some/path.mp4")
 
 	// --- ASSERT ---
 	require.NoError(t, err)
@@ -59,8 +60,8 @@ func TestGetDuration_FailsOnCommandRun(t *testing.T) {
 	mockCmd.EXPECT().SetStderr(os.Stderr).Once()
 	mockCmd.EXPECT().Run().Return(expectedErr).Once() // Simulate ffprobe failing to run
 
-	transcoder := NewFFMPEGTranscoder("/tmp", mockCommander)
-	_, err := transcoder.getDuration(t.Context(), "/tmp/some/path.mp4")
+	transcoder := ffmpeg.NewFFMPEGTranscoder("/tmp", mockCommander)
+	_, err := transcoder.GetDuration(t.Context(), "/tmp/some/path.mp4")
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, expectedErr)
@@ -93,7 +94,7 @@ func TestTranscode_SuccessCase(t *testing.T) {
 	mockFFmpegCmd.EXPECT().Run().Return(nil).Once() // ffmpeg succeeds
 
 	// --- ACT ---
-	transcoder := NewFFMPEGTranscoder("/tmp", mockCommander)
+	transcoder := ffmpeg.NewFFMPEGTranscoder("/tmp", mockCommander)
 	// We need to create a temporary source file for ffprobe to not fail on missing file
 	tmpFile, err := os.CreateTemp("", "source-*.mp4")
 	require.NoError(t, err)
@@ -130,7 +131,7 @@ func TestTranscode_FailsOnGetDuration(t *testing.T) {
 	mockProbeCmd.EXPECT().Run().Return(expectedErr).Once()
 
 	// --- ACT ---
-	transcoder := NewFFMPEGTranscoder("/tmp", mockCommander)
+	transcoder := ffmpeg.NewFFMPEGTranscoder("/tmp", mockCommander)
 	_, err := transcoder.Transcode(t.Context(), "resource-id", "source.mp4")
 
 	// --- ASSERT ---
@@ -166,7 +167,7 @@ func TestTranscode_FailsOnFFmpegRun(t *testing.T) {
 	mockFFmpegCmd.EXPECT().Run().Return(expectedErr).Once() // ffmpeg fails
 
 	// --- ACT ---
-	transcoder := NewFFMPEGTranscoder("/tmp", mockCommander)
+	transcoder := ffmpeg.NewFFMPEGTranscoder("/tmp", mockCommander)
 	tmpFile, err := os.CreateTemp("", "source-*.mp4")
 	require.NoError(t, err)
 	defer os.Remove(tmpFile.Name())

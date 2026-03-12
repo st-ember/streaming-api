@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"bytes"
@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
+	"github.com/st-ember/streaming-api/internal/adapter/driving/http/handler"
 	mocklog "github.com/st-ember/streaming-api/internal/application/ports/log/mocks"
 	"github.com/st-ember/streaming-api/internal/application/videoapp"
 	mockvideo "github.com/st-ember/streaming-api/internal/application/videoapp/mocks"
@@ -25,7 +26,7 @@ func TestVideoHandler_Update(t *testing.T) {
 		}
 
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(videoUC, mockLogger)
+		h := handler.NewVideoHandler(videoUC, mockLogger)
 
 		// Video that will be returned by usecase
 		videoID := "video-123"
@@ -46,7 +47,7 @@ func TestVideoHandler_Update(t *testing.T) {
 			Once()
 
 		// Prepare request body
-		updateReq := UpdateVideoRequest{
+		updateReq := handler.UpdateVideoRequest{
 			Title: &newTitle,
 		}
 		body, err := json.Marshal(updateReq)
@@ -79,7 +80,7 @@ func TestVideoHandler_Update(t *testing.T) {
 		}
 
 		mockLogger := mocklog.NewMockLogger(t)
-		h := NewVideoHandler(videoUC, mockLogger)
+		h := handler.NewVideoHandler(videoUC, mockLogger)
 
 		videoID := "video-123"
 		updateInput := videoapp.UpdateVideoInput{
@@ -93,7 +94,7 @@ func TestVideoHandler_Update(t *testing.T) {
 		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything).Once()
 
 		// Prepare request body
-		updateReq := UpdateVideoRequest{}
+		updateReq := handler.UpdateVideoRequest{}
 		body, err := json.Marshal(updateReq)
 		require.NoError(t, err)
 
