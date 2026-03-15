@@ -59,7 +59,7 @@ func TestWorkerPool_GracefulShutdown(t *testing.T) {
 		OutputFiles:  []string{},
 	}, nil).Once()
 
-	completeUC.EXPECT().Execute(mock.Anything, testJob, "/tmp/fake/manifest.m3u8", 10*time.Second).Return(nil).Once()
+	completeUC.EXPECT().Execute(mock.Anything, testJob, "manifest.m3u8", 10*time.Second).Return(nil).Once()
 
 	// Subsequent scheduler poll triggers the context cancellation
 	findNextUC.EXPECT().Execute(mock.Anything).Run(func(ctx context.Context) {

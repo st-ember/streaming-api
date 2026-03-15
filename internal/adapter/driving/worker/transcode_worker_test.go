@@ -58,7 +58,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 		storer.EXPECT().Save(mock.Anything, resourceID, manifestName, mock.Anything).Return(nil)
 		storer.EXPECT().Save(mock.Anything, resourceID, segmentName, mock.Anything).Return(nil)
 
-		completeUC.EXPECT().Execute(mock.Anything, testJob, filepath.Join(tempDir, manifestName), 10*time.Second).Return(nil)
+		completeUC.EXPECT().Execute(mock.Anything, testJob, manifestName, 10*time.Second).Return(nil)
 		logger.EXPECT().Infof(mock.Anything, mock.Anything).Maybe()
 
 		go w.Start()
