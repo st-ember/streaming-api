@@ -45,6 +45,7 @@ func TestVideoHandler_Update(t *testing.T) {
 			Execute(mock.Anything, updateInput).
 			Return(updatedVideo, nil).
 			Once()
+		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything).Once()
 
 		// Prepare request body
 		updateReq := handler.UpdateVideoRequest{

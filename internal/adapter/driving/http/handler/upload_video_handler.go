@@ -60,6 +60,8 @@ func (h *VideoHandler) Upload(w http.ResponseWriter, r *http.Request) {
 	// Send response
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		h.logger.Errorf("encode upload video response: %v", err)
-		return
 	}
+
+	// Log success
+	h.logger.Infof("uploaded video %s", result.Video.ID)
 }

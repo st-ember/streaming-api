@@ -43,4 +43,7 @@ func (h *VideoHandler) Get(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		h.logger.Errorf("encode get video info response %v", err)
 	}
+
+	// Log success
+	h.logger.Infof("got video %s info", id)
 }

@@ -44,6 +44,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 			})).
 			Return(&videoapp.UploadVideoResult{Video: v, Job: j}, nil).
 			Once()
+		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything).Once()
 
 		req := httptest.NewRequest(http.MethodPost, "/api/video/", body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())

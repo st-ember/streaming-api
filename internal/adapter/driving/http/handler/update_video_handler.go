@@ -45,4 +45,7 @@ func (h *VideoHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(v); err != nil {
 		h.logger.Errorf("encode video %s: %v", id, err)
 	}
+
+	// Log Success
+	h.logger.Infof("updated video %s", v.ID)
 }

@@ -18,5 +18,9 @@ func (h *VideoHandler) Archive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Send OK response
 	w.WriteHeader(http.StatusOK)
+
+	// Log success
+	h.logger.Infof("archived video %s", id)
 }

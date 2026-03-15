@@ -19,6 +19,7 @@ func (h *VideoHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Execute usecase
 	vs, err := h.videoUC.List.Execute(r.Context(), page)
 	if err != nil {
 		h.logger.Errorf("list videos: %v", err)
@@ -26,7 +27,11 @@ func (h *VideoHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Send response
 	if err := json.NewEncoder(w).Encode(vs); err != nil {
 		h.logger.Errorf("encode video list: %v", err)
 	}
+
+	// Log success
+	h.logger.Infof("listed videos")
 }

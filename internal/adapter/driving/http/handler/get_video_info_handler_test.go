@@ -43,6 +43,8 @@ func TestVideoHandler_Get(t *testing.T) {
 			Return(usecaseResult, nil).
 			Once()
 
+		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything).Once()
+
 		req := httptest.NewRequest(http.MethodGet, "/api/video/"+videoID, nil)
 		// Manually set gorilla/mux vars
 		req = mux.SetURLVars(req, map[string]string{"id": videoID})
