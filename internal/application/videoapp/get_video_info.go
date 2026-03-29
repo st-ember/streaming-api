@@ -24,7 +24,7 @@ func (u *getVideoInfoUsecase) Execute(ctx context.Context, id string) (*GetVideo
 	if err != nil {
 		return nil, fmt.Errorf("initialize unit of work: %w", err)
 	}
-	defer uow.Rollback(ctx)
+	defer uow.Close(ctx)
 
 	videoRepo := uow.VideoRepo()
 	jobRepo := uow.JobRepo()

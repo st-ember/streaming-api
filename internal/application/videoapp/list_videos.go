@@ -25,7 +25,7 @@ func (u *listVideoUsecase) Execute(ctx context.Context, page int) ([]*video.Vide
 	if err != nil {
 		return nil, fmt.Errorf("initialize unit of work")
 	}
-	defer uow.Rollback(ctx)
+	defer uow.Close(ctx)
 
 	videoRepo := uow.VideoRepo()
 

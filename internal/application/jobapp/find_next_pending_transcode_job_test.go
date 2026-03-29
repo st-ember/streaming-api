@@ -31,7 +31,7 @@ func TestFindNextPendingTranscodeJob_SuccessCase(t *testing.T) {
 	mockUowFactory.EXPECT().NewUnitOfWork(mock.Anything).Return(mockUow, nil).Once()
 	mockUow.EXPECT().JobRepo().Return(mockJobRepo).Once()
 	mockJobRepo.EXPECT().FindNextPendingTranscodeJob(mock.Anything).Return(expectedJob, nil).Once()
-	mockUow.EXPECT().Rollback(mock.Anything).Return(nil).Once()
+	mockUow.EXPECT().Close(mock.Anything).Return(nil).Once()
 	// Create usecase
 	usecase := jobapp.NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
 
@@ -59,7 +59,7 @@ func TestFindNextPendingTranscodeJob_JobRepoReturnsError(t *testing.T) {
 	mockUow.EXPECT().JobRepo().Return(mockJobRepo).Once()
 	expectedErr := errors.New("connection failed")
 	mockJobRepo.EXPECT().FindNextPendingTranscodeJob(mock.Anything).Return(nil, expectedErr).Once()
-	mockUow.EXPECT().Rollback(mock.Anything).Return(nil).Once()
+	mockUow.EXPECT().Close(mock.Anything).Return(nil).Once()
 
 	// Create usecase
 	usecase := jobapp.NewFindNextPendingTranscodeJobUsecase(mockUowFactory)
@@ -85,7 +85,7 @@ func TestFindNextPendingTranscodeJob_NoJobFound(t *testing.T) {
 	mockUowFactory.EXPECT().NewUnitOfWork(mock.Anything).Return(mockUow, nil).Once()
 	mockUow.EXPECT().JobRepo().Return(mockJobRepo).Once()
 	mockJobRepo.EXPECT().FindNextPendingTranscodeJob(mock.Anything).Return(nil, nil).Once()
-	mockUow.EXPECT().Rollback(mock.Anything).Return(nil).Once()
+	mockUow.EXPECT().Close(mock.Anything).Return(nil).Once()
 
 	// Create usecase
 	usecase := jobapp.NewFindNextPendingTranscodeJobUsecase(mockUowFactory)

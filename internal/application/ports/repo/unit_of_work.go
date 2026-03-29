@@ -11,6 +11,8 @@ type UnitOfWork interface {
 	Commit(ctx context.Context) error
 	// Rollback cancels the transaction
 	Rollback(ctx context.Context) error
+	// Close ends read-only transactions
+	Close(ctx context.Context) error
 }
 
 type UnitOfWorkFactory interface {

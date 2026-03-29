@@ -54,3 +54,8 @@ func (u *PostgresUnitOfWork) Commit(ctx context.Context) error {
 func (u *PostgresUnitOfWork) Rollback(ctx context.Context) error {
 	return u.tx.Rollback()
 }
+
+// Close ends read-only transactions
+func (u *PostgresUnitOfWork) Close(ctx context.Context) error {
+	return u.tx.Rollback()
+}

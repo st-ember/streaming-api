@@ -25,7 +25,7 @@ func (u *findNextPendingTranscodeJobUsecase) Execute(ctx context.Context) (*job.
 	if err != nil {
 		return nil, fmt.Errorf("initialize unit of work: %w", err)
 	}
-	defer uow.Rollback(ctx)
+	defer uow.Close(ctx)
 
 	jobRepo := uow.JobRepo()
 	return jobRepo.FindNextPendingTranscodeJob(ctx)

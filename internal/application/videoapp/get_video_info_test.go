@@ -41,7 +41,7 @@ func TestGetVideoInfo_SuccessCase(t *testing.T) {
 	// Unit of Work expectations
 	mockUow.EXPECT().VideoRepo().Return(mockVideoRepo)
 	mockUow.EXPECT().JobRepo().Return(mockJobRepo)
-	mockUow.EXPECT().Rollback(mock.Anything).Return(nil).Once()
+	mockUow.EXPECT().Close(mock.Anything).Return(nil).Once()
 
 	// Repo expectations
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, videoID).Return(testVideo, nil).Once()
@@ -75,7 +75,7 @@ func TestGetVideoInfo_VideoNotFound(t *testing.T) {
 	mockUowFactory.EXPECT().NewUnitOfWork(mock.Anything).Return(mockUow, nil).Once()
 	mockUow.EXPECT().VideoRepo().Return(mockVideoRepo)
 	mockUow.EXPECT().JobRepo().Return(mockJobRepo)
-	mockUow.EXPECT().Rollback(mock.Anything).Return(nil).Once()
+	mockUow.EXPECT().Close(mock.Anything).Return(nil).Once()
 
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, videoID).Return(nil, expectedErr).Once()
 
@@ -103,7 +103,7 @@ func TestGetVideoInfo_JobNotFound(t *testing.T) {
 	mockUowFactory.EXPECT().NewUnitOfWork(mock.Anything).Return(mockUow, nil).Once()
 	mockUow.EXPECT().VideoRepo().Return(mockVideoRepo)
 	mockUow.EXPECT().JobRepo().Return(mockJobRepo)
-	mockUow.EXPECT().Rollback(mock.Anything).Return(nil).Once()
+	mockUow.EXPECT().Close(mock.Anything).Return(nil).Once()
 
 	mockVideoRepo.EXPECT().FindByID(mock.Anything, videoID).Return(testVideo, nil).Once()
 	mockJobRepo.EXPECT().FindByVideoID(mock.Anything, videoID).Return(nil, expectedErr).Once()

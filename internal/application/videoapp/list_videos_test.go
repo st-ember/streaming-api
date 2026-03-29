@@ -27,7 +27,7 @@ func TestListVideos_Success(t *testing.T) {
 
 	mockUowFactory.EXPECT().NewUnitOfWork(mock.Anything).Return(mockUow, nil).Once()
 	mockUow.EXPECT().VideoRepo().Return(mockVideoRepo)
-	mockUow.EXPECT().Rollback(mock.Anything).Return(nil).Once()
+	mockUow.EXPECT().Close(mock.Anything).Return(nil).Once()
 
 	mockVideoRepo.EXPECT().List(mock.Anything, page).Return(expectedVideos, nil).Once()
 
@@ -51,7 +51,7 @@ func TestListVideos_RepoError(t *testing.T) {
 
 	mockUowFactory.EXPECT().NewUnitOfWork(mock.Anything).Return(mockUow, nil).Once()
 	mockUow.EXPECT().VideoRepo().Return(mockVideoRepo)
-	mockUow.EXPECT().Rollback(mock.Anything).Return(nil).Once()
+	mockUow.EXPECT().Close(mock.Anything).Return(nil).Once()
 
 	mockVideoRepo.EXPECT().List(mock.Anything, page).Return(nil, expectedErr).Once()
 
