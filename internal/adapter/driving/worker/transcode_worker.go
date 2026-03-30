@@ -87,12 +87,19 @@ func (w *TranscodeWorker) Start() {
 					w.failUC.Execute(ctx, job, "failed to save transcoded output")
 					return
 				}
+
+				// Log successful move
+				w.logger.Infof("deleted and moved temp files to permanent storage for video %s", resp.ResourceID)
 			}
 
 			if err := w.completeUC.Execute(ctx, job, filepath.Base(out.ManifestPath), out.Duration); err != nil {
 				w.logger.Errorf("complete job %s: %v", job.ID, err)
 			}
+
+			// Log successful job completion
+			w.logger.Infof("completed job %s", job.ID)
 		}()
 	}
+
 	w.logger.Infof("worker finished draining queue and is shutting down")
 }
