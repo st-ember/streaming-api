@@ -36,7 +36,7 @@ func NewJobScheduler(
 }
 
 func (s *JobScheduler) Run(ctx context.Context) {
-	s.logger.Infof("job scheduler started")
+	s.logger.Infof(ctx, "job scheduler started")
 
 	ticker := time.NewTicker(s.pollInterval)
 	defer ticker.Stop()
@@ -44,7 +44,7 @@ func (s *JobScheduler) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			s.logger.Infof("job scheduler shutting down")
+			s.logger.Infof(ctx, "job scheduler shutting down")
 			return
 		case <-ticker.C:
 			job, err := s.findNextUC.Execute(ctx)
@@ -52,7 +52,7 @@ func (s *JobScheduler) Run(ctx context.Context) {
 				if errors.Is(err, sql.ErrNoRows) {
 					continue
 				}
-				s.logger.Errorf("find next executable job: %v", err)
+				s.logger.Errorf(ctx, "find next executable job: %v", err)
 				time.Sleep(5 * time.Second) // backoff
 			}
 			if job == nil {
@@ -62,9 +62,9 @@ func (s *JobScheduler) Run(ctx context.Context) {
 			select {
 			// Send job
 			case s.jobCh <- job:
-				s.logger.Infof("job %s is added to queue", job.ID)
+				s.logger.Infof(ctx, "job %s is added to queue", job.ID)
 			default: // Default case to make the scheduler more reactive for later adjustments
-				s.logger.Infof("job queue full now, will try again in %v seconds", s.pollInterval)
+				s.logger.Infof(ctx, "job queue full now, will try again in %v seconds", s.pollInterval)
 			}
 		}
 	}

@@ -38,7 +38,7 @@ func TestWorkerPool_GracefulShutdown(t *testing.T) {
 	testJob, _ := job.NewJob("job-1", "video-1", job.TypeTranscode)
 
 	// Expectations
-	logger.EXPECT().Infof("job scheduler started").Once()
+	logger.EXPECT().Infof(mock.Anything, "job scheduler started").Once()
 
 	// Scheduler: returns one job, then we'll cancel context during the next poll
 	findNextUC.EXPECT().Execute(mock.Anything).Return(testJob, nil).Once()
@@ -66,9 +66,8 @@ func TestWorkerPool_GracefulShutdown(t *testing.T) {
 		cancel()
 	}).Return(nil, nil).Maybe()
 
-	logger.EXPECT().Infof("job scheduler shutting down").Once()
-	logger.EXPECT().Infof(mock.Anything, mock.Anything).Maybe()
-	logger.EXPECT().Infof(mock.Anything).Maybe() // Catch "worker finished..." or other info logs
+	logger.EXPECT().Infof(mock.Anything, "job scheduler shutting down").Once()
+	logger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything).Maybe()
 
 	// Start Pool
 	p.Start(ctx)

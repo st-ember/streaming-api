@@ -45,7 +45,7 @@ func TestVideoHandler_Update(t *testing.T) {
 			Execute(mock.Anything, updateInput).
 			Return(updatedVideo, nil).
 			Once()
-		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything).Once()
 
 		// Prepare request body
 		updateReq := handler.UpdateVideoRequest{
@@ -92,7 +92,7 @@ func TestVideoHandler_Update(t *testing.T) {
 			Return(nil, errors.New("db failure")).
 			Once()
 
-		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
 
 		// Prepare request body
 		updateReq := handler.UpdateVideoRequest{}

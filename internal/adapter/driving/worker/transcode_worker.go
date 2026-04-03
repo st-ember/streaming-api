@@ -42,14 +42,12 @@ func NewTranscodeWorker(
 	}
 }
 
-func (w *TranscodeWorker) Start() {
+func (w *TranscodeWorker) Start(ctx context.Context) {
 	for job := range w.jobCh {
 		func() {
-			ctx := context.Background()
-
 			resp, err := w.startUC.Execute(ctx, job)
 			if err != nil {
-				w.logger.Errorf("start job %s: %v", job.ID, err)
+				w.logger.Errorf(ctx, "start job %s: %v", job.ID, err)
 				return
 			}
 
@@ -57,7 +55,7 @@ func (w *TranscodeWorker) Start() {
 			if err != nil {
 				// Execute fail transcode job usecase
 				w.failUC.Execute(ctx, job, err.Error())
-				w.logger.Errorf("transcode job %s: %v", job.ID, err)
+				w.logger.Errorf(ctx, "transcode job %s: %v", job.ID, err)
 				return
 			}
 
@@ -65,7 +63,7 @@ func (w *TranscodeWorker) Start() {
 			// Clean up temporary directory on error or when job finishes
 			defer func() {
 				if err := os.RemoveAll(tempOutputDir); err != nil {
-					w.logger.Errorf("job %s: clean up temporary directory %s: %v", job.ID, tempOutputDir, err)
+					w.logger.Errorf(ctx, "job %s: clean up temporary directory %s: %v", job.ID, tempOutputDir, err)
 				}
 			}()
 
@@ -74,7 +72,7 @@ func (w *TranscodeWorker) Start() {
 				fullTempPath := filepath.Join(tempOutputDir, relativeFilePath)
 				tempFile, err := os.Open(fullTempPath)
 				if err != nil {
-					w.logger.Errorf("job %s: open temporary file %s for saving: %v", job.ID, fullTempPath, err)
+					w.logger.Errorf(ctx, "job %s: open temporary file %s for saving: %v", job.ID, fullTempPath, err)
 					w.failUC.Execute(ctx, job, "failed to read transcoded output")
 					return
 				}
@@ -83,23 +81,23 @@ func (w *TranscodeWorker) Start() {
 				// Close immediately
 				tempFile.Close()
 				if err != nil {
-					w.logger.Errorf("job %s: save transcoded file %s to storage: %v", job.ID, relativeFilePath, err)
+					w.logger.Errorf(ctx, "job %s: save transcoded file %s to storage: %v", job.ID, relativeFilePath, err)
 					w.failUC.Execute(ctx, job, "failed to save transcoded output")
 					return
 				}
 
 				// Log successful move
-				w.logger.Infof("deleted and moved temp files to permanent storage for video %s", resp.ResourceID)
+				w.logger.Infof(ctx, "deleted and moved temp files to permanent storage for video %s", resp.ResourceID)
 			}
 
 			if err := w.completeUC.Execute(ctx, job, filepath.Base(out.ManifestPath), out.Duration); err != nil {
-				w.logger.Errorf("complete job %s: %v", job.ID, err)
+				w.logger.Errorf(ctx, "complete job %s: %v", job.ID, err)
 			}
 
 			// Log successful job completion
-			w.logger.Infof("completed job %s", job.ID)
+			w.logger.Infof(ctx, "completed job %s", job.ID)
 		}()
 	}
 
-	w.logger.Infof("worker finished draining queue and is shutting down")
+	w.logger.Infof(ctx, "worker finished draining queue and is shutting down")
 }

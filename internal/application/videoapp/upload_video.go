@@ -46,7 +46,7 @@ func (u *uploadVideoUsecase) Execute(ctx context.Context, input UploadVideoInput
 	defer func() {
 		if err != nil {
 			if cleanupErr := u.assetStorer.DeleteAll(ctx, resourceID); cleanupErr != nil {
-				u.logger.Errorf("Failed to clean up: %v", cleanupErr)
+				u.logger.Errorf(ctx, "Failed to clean up: %v", cleanupErr)
 			}
 		}
 	}()

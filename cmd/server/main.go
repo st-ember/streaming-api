@@ -92,16 +92,16 @@ func main() {
 
 	// Start HTTP Server in background
 	go func() {
-		logger.Infof("Now listening on :%s\n", cfg.ServerAdd)
+		logger.Infof(ctx, "Now listening on :%s\n", cfg.ServerAdd)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			stop() // initiate graceful shutdown
-			logger.Errorf("listen: %s\n", err)
+			logger.Errorf(ctx, "listen: %s\n", err)
 		}
 	}()
 
 	// Wait for signal to shut down
 	<-ctx.Done()
-	logger.Infof("shutting down gracefully...")
+	logger.Infof(ctx, "shutting down gracefully...")
 
 	// Shutdown server with timeout
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -118,10 +118,10 @@ func main() {
 
 	select {
 	case <-workerDone:
-		logger.Infof("workers exited cleanly")
+		logger.Infof(ctx, "workers exited cleanly")
 	case <-time.After(cfg.WorkerWaitTime):
-		logger.Warnf("timed out waiting for workers; forcing exit")
+		logger.Warnf(ctx, "timed out waiting for workers; forcing exit")
 	}
 
-	logger.Infof("exiting")
+	logger.Infof(ctx, "exiting")
 }

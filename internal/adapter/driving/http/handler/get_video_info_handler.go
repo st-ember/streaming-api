@@ -16,7 +16,7 @@ func (h *VideoHandler) Get(w http.ResponseWriter, r *http.Request) {
 	info, err := h.videoUC.GetInfo.Execute(r.Context(), id)
 	if err != nil {
 		http.Error(w, "failed to find video info", http.StatusInternalServerError)
-		h.logger.Errorf("find video %s: %v", err)
+		h.logger.Errorf(r.Context(), "find video %s: %v", err)
 		return
 	}
 
@@ -41,9 +41,9 @@ func (h *VideoHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 	// Send response
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		h.logger.Errorf("encode get video info response %v", err)
+		h.logger.Errorf(r.Context(), "encode get video info response %v", err)
 	}
 
 	// Log success
-	h.logger.Infof("got video %s info", id)
+	h.logger.Infof(r.Context(), "got video %s info", id)
 }

@@ -70,7 +70,7 @@ func (p *WorkerPool) Start(ctx context.Context) {
 				p.startUC, p.completeUC, p.failUC,
 				p.storer, p.logger, p.transcoder, p.jobCh,
 			)
-			worker.Start()
+			worker.Start(ctx)
 		}()
 	}
 }

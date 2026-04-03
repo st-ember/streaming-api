@@ -1,7 +1,9 @@
 package log
 
+import "context"
+
 type Logger interface {
-	Errorf(format string, args ...any)
-	Warnf(format string, args ...any)
-	Infof(format string, args ...any)
+	Errorf(ctx context.Context, format string, args ...any)
+	Warnf(ctx context.Context, format string, args ...any)
+	Infof(ctx context.Context, format string, args ...any)
 }

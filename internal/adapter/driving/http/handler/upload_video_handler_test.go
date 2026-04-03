@@ -44,7 +44,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 			})).
 			Return(&videoapp.UploadVideoResult{Video: v, Job: j}, nil).
 			Once()
-		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything).Once()
 
 		req := httptest.NewRequest(http.MethodPost, "/api/video/", body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -67,7 +67,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 		// Send a plain text body instead of multipart
 		body := bytes.NewBufferString("not a multipart form")
 
-		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
 
 		req := httptest.NewRequest(http.MethodPost, "/api/video/", body)
 		// We set the header but the body is garbage
@@ -89,7 +89,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 		_ = writer.WriteField("title", "Test Video")
 		_ = writer.Close()
 
-		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
 
 		req := httptest.NewRequest(http.MethodPost, "/api/video/", body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -118,7 +118,7 @@ func TestVideoHandler_Upload(t *testing.T) {
 			Return(nil, errors.New("db error")).
 			Once()
 
-		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
 
 		req := httptest.NewRequest(http.MethodPost, "/api/video/", body)
 		req.Header.Set("Content-Type", writer.FormDataContentType())

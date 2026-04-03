@@ -43,7 +43,7 @@ func TestVideoHandler_Get(t *testing.T) {
 			Return(usecaseResult, nil).
 			Once()
 
-		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything).Once()
 
 		req := httptest.NewRequest(http.MethodGet, "/api/video/"+videoID, nil)
 		// Manually set gorilla/mux vars
@@ -80,7 +80,7 @@ func TestVideoHandler_Get(t *testing.T) {
 			Return(nil, errors.New("db failure")).
 			Once()
 
-		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
 
 		req := httptest.NewRequest(http.MethodGet, "/api/video/"+videoID, nil)
 		req = mux.SetURLVars(req, map[string]string{"id": videoID})

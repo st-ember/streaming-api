@@ -30,7 +30,7 @@ func (h *StreamingHandler) ServeFile(w http.ResponseWriter, r *http.Request) {
 	// Ensure path validity
 	cleanedPath := filepath.Clean(fullPath)
 	if !strings.HasPrefix(cleanedPath, h.storagePath) {
-		h.logger.Errorf("file path %s is invalid", fullPath)
+		h.logger.Errorf(r.Context(), "file path %s is invalid", fullPath)
 		http.Error(w, "invalid path", http.StatusBadRequest)
 		return
 	}

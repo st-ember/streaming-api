@@ -5,6 +5,8 @@
 package log
 
 import (
+	"context"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -36,11 +38,11 @@ func (_m *MockLogger) EXPECT() *MockLogger_Expecter {
 }
 
 // Errorf provides a mock function for the type MockLogger
-func (_mock *MockLogger) Errorf(format string, args ...any) {
+func (_mock *MockLogger) Errorf(ctx context.Context, format string, args ...any) {
 	if len(args) > 0 {
-		_mock.Called(format, args)
+		_mock.Called(ctx, format, args)
 	} else {
-		_mock.Called(format)
+		_mock.Called(ctx, format)
 	}
 
 	return
@@ -52,28 +54,34 @@ type MockLogger_Errorf_Call struct {
 }
 
 // Errorf is a helper method to define mock.On call
+//   - ctx context.Context
 //   - format string
 //   - args ...any
-func (_e *MockLogger_Expecter) Errorf(format interface{}, args ...interface{}) *MockLogger_Errorf_Call {
+func (_e *MockLogger_Expecter) Errorf(ctx interface{}, format interface{}, args ...interface{}) *MockLogger_Errorf_Call {
 	return &MockLogger_Errorf_Call{Call: _e.mock.On("Errorf",
-		append([]interface{}{format}, args...)...)}
+		append([]interface{}{ctx, format}, args...)...)}
 }
 
-func (_c *MockLogger_Errorf_Call) Run(run func(format string, args ...any)) *MockLogger_Errorf_Call {
+func (_c *MockLogger_Errorf_Call) Run(run func(ctx context.Context, format string, args ...any)) *MockLogger_Errorf_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
 		}
-		var arg1 []any
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []any
 		var variadicArgs []any
-		if len(args) > 1 {
-			variadicArgs = args[1].([]any)
+		if len(args) > 2 {
+			variadicArgs = args[2].([]any)
 		}
-		arg1 = variadicArgs
+		arg2 = variadicArgs
 		run(
 			arg0,
-			arg1...,
+			arg1,
+			arg2...,
 		)
 	})
 	return _c
@@ -84,17 +92,17 @@ func (_c *MockLogger_Errorf_Call) Return() *MockLogger_Errorf_Call {
 	return _c
 }
 
-func (_c *MockLogger_Errorf_Call) RunAndReturn(run func(format string, args ...any)) *MockLogger_Errorf_Call {
+func (_c *MockLogger_Errorf_Call) RunAndReturn(run func(ctx context.Context, format string, args ...any)) *MockLogger_Errorf_Call {
 	_c.Run(run)
 	return _c
 }
 
 // Infof provides a mock function for the type MockLogger
-func (_mock *MockLogger) Infof(format string, args ...any) {
+func (_mock *MockLogger) Infof(ctx context.Context, format string, args ...any) {
 	if len(args) > 0 {
-		_mock.Called(format, args)
+		_mock.Called(ctx, format, args)
 	} else {
-		_mock.Called(format)
+		_mock.Called(ctx, format)
 	}
 
 	return
@@ -106,28 +114,34 @@ type MockLogger_Infof_Call struct {
 }
 
 // Infof is a helper method to define mock.On call
+//   - ctx context.Context
 //   - format string
 //   - args ...any
-func (_e *MockLogger_Expecter) Infof(format interface{}, args ...interface{}) *MockLogger_Infof_Call {
+func (_e *MockLogger_Expecter) Infof(ctx interface{}, format interface{}, args ...interface{}) *MockLogger_Infof_Call {
 	return &MockLogger_Infof_Call{Call: _e.mock.On("Infof",
-		append([]interface{}{format}, args...)...)}
+		append([]interface{}{ctx, format}, args...)...)}
 }
 
-func (_c *MockLogger_Infof_Call) Run(run func(format string, args ...any)) *MockLogger_Infof_Call {
+func (_c *MockLogger_Infof_Call) Run(run func(ctx context.Context, format string, args ...any)) *MockLogger_Infof_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
 		}
-		var arg1 []any
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []any
 		var variadicArgs []any
-		if len(args) > 1 {
-			variadicArgs = args[1].([]any)
+		if len(args) > 2 {
+			variadicArgs = args[2].([]any)
 		}
-		arg1 = variadicArgs
+		arg2 = variadicArgs
 		run(
 			arg0,
-			arg1...,
+			arg1,
+			arg2...,
 		)
 	})
 	return _c
@@ -138,17 +152,17 @@ func (_c *MockLogger_Infof_Call) Return() *MockLogger_Infof_Call {
 	return _c
 }
 
-func (_c *MockLogger_Infof_Call) RunAndReturn(run func(format string, args ...any)) *MockLogger_Infof_Call {
+func (_c *MockLogger_Infof_Call) RunAndReturn(run func(ctx context.Context, format string, args ...any)) *MockLogger_Infof_Call {
 	_c.Run(run)
 	return _c
 }
 
 // Warnf provides a mock function for the type MockLogger
-func (_mock *MockLogger) Warnf(format string, args ...any) {
+func (_mock *MockLogger) Warnf(ctx context.Context, format string, args ...any) {
 	if len(args) > 0 {
-		_mock.Called(format, args)
+		_mock.Called(ctx, format, args)
 	} else {
-		_mock.Called(format)
+		_mock.Called(ctx, format)
 	}
 
 	return
@@ -160,28 +174,34 @@ type MockLogger_Warnf_Call struct {
 }
 
 // Warnf is a helper method to define mock.On call
+//   - ctx context.Context
 //   - format string
 //   - args ...any
-func (_e *MockLogger_Expecter) Warnf(format interface{}, args ...interface{}) *MockLogger_Warnf_Call {
+func (_e *MockLogger_Expecter) Warnf(ctx interface{}, format interface{}, args ...interface{}) *MockLogger_Warnf_Call {
 	return &MockLogger_Warnf_Call{Call: _e.mock.On("Warnf",
-		append([]interface{}{format}, args...)...)}
+		append([]interface{}{ctx, format}, args...)...)}
 }
 
-func (_c *MockLogger_Warnf_Call) Run(run func(format string, args ...any)) *MockLogger_Warnf_Call {
+func (_c *MockLogger_Warnf_Call) Run(run func(ctx context.Context, format string, args ...any)) *MockLogger_Warnf_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		var arg0 string
+		var arg0 context.Context
 		if args[0] != nil {
-			arg0 = args[0].(string)
+			arg0 = args[0].(context.Context)
 		}
-		var arg1 []any
+		var arg1 string
+		if args[1] != nil {
+			arg1 = args[1].(string)
+		}
+		var arg2 []any
 		var variadicArgs []any
-		if len(args) > 1 {
-			variadicArgs = args[1].([]any)
+		if len(args) > 2 {
+			variadicArgs = args[2].([]any)
 		}
-		arg1 = variadicArgs
+		arg2 = variadicArgs
 		run(
 			arg0,
-			arg1...,
+			arg1,
+			arg2...,
 		)
 	})
 	return _c
@@ -192,7 +212,7 @@ func (_c *MockLogger_Warnf_Call) Return() *MockLogger_Warnf_Call {
 	return _c
 }
 
-func (_c *MockLogger_Warnf_Call) RunAndReturn(run func(format string, args ...any)) *MockLogger_Warnf_Call {
+func (_c *MockLogger_Warnf_Call) RunAndReturn(run func(ctx context.Context, format string, args ...any)) *MockLogger_Warnf_Call {
 	_c.Run(run)
 	return _c
 }

@@ -32,7 +32,7 @@ func TestVideoHandler_List(t *testing.T) {
 		}
 
 		mockListUC.EXPECT().Execute(mock.Anything, page).Return(expectedVideos, nil).Once()
-		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything).Once()
 
 		req := httptest.NewRequest(http.MethodGet, "/api/video/list/1", nil)
 		req = mux.SetURLVars(req, map[string]string{"page": "1"})
@@ -70,7 +70,7 @@ func TestVideoHandler_List(t *testing.T) {
 		h := handler.NewVideoHandler(videoUCs, mockLogger)
 
 		mockListUC.EXPECT().Execute(mock.Anything, 1).Return(nil, errors.New("db fail")).Once()
-		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
 
 		req := httptest.NewRequest(http.MethodGet, "/api/video/list/1", nil)
 		req = mux.SetURLVars(req, map[string]string{"page": "1"})
