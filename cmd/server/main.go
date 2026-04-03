@@ -11,7 +11,8 @@ import (
 
 	"github.com/st-ember/streaming-api/internal/adapter/driven/config"
 	exec "github.com/st-ember/streaming-api/internal/adapter/driven/exec/os"
-	"github.com/st-ember/streaming-api/internal/adapter/driven/log/stdlib"
+	redislogger "github.com/st-ember/streaming-api/internal/adapter/driven/log/redis_logger"
+	"github.com/st-ember/streaming-api/internal/adapter/driven/redis"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/repo/postgres"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/storage/local"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/transcode/ffmpeg"
@@ -39,7 +40,11 @@ func main() {
 	uowFactory := postgres.NewPostgresUnitOfWorkFactory(db.Conn)
 
 	// Driven adapter (Logger)
-	logger := stdlib.NewStdLogger()
+	redis, err := redis.NewClient(cfg.RedisAddrs, cfg.RedisPassword)
+	if err != nil {
+		log.Fatalf("connect to redis client: %v", err)
+	}
+	logger := redislogger.NewRedisLogger(redis)
 
 	// Driven adapter (Storer)
 	storer, err := local.NewLocalAssetStorer(cfg.StoragePath)

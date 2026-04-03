@@ -15,6 +15,8 @@ type Config struct {
 	PollInterval      time.Duration
 	WorkerWaitTime    time.Duration
 	CorsAllowedOrigin []string
+	RedisAddrs        []string
+	RedisPassword     string
 }
 
 func Load() *Config {
@@ -26,6 +28,8 @@ func Load() *Config {
 		PollInterval:      time.Duration(getEnvInt("POLL_INTERVAL_SEC", 10)) * time.Second,
 		WorkerWaitTime:    time.Duration(getEnvInt("WORKER_WAIT_SEC", 60)) * time.Second,
 		CorsAllowedOrigin: getEnvStringSlice("CORS_ALLOWED_STRING", []string{"*"}),
+		RedisAddrs:        getEnvStringSlice("REDIS_ADDRS", []string{""}),
+		RedisPassword:     getEnv("REDIS_PASSWORD", ""),
 	}
 }
 
