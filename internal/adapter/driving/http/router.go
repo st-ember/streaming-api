@@ -6,7 +6,9 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/st-ember/streaming-api/internal/adapter/driving/http/handler"
+	wshandler "github.com/st-ember/streaming-api/internal/adapter/driving/websocket/handler"
 	"github.com/st-ember/streaming-api/internal/application/ports/log"
+	"github.com/st-ember/streaming-api/internal/application/progressapp"
 	"github.com/st-ember/streaming-api/internal/application/videoapp"
 )
 
@@ -24,6 +26,7 @@ var (
 
 func NewRouter(
 	videoUC videoapp.VideoUsecase,
+	videoProgressUC progressapp.VideoProgressUsecase,
 	storagePath string,
 	allowedCfg []string,
 	logger log.Logger,
@@ -45,6 +48,12 @@ func NewRouter(
 	streamingRouter := r.PathPrefix("/streaming").Subrouter()
 	streamingHandler := handler.NewStreamingHandler(storagePath, logger)
 	streamingRouter.HandleFunc("/{resourceID}/{filename}", streamingHandler.ServeFile).Methods(GET)
+
+	// progress
+	progressRouter := r.PathPrefix("progress").Subrouter()
+	progressHandler := wshandler.NewProgressHandler(videoProgressUC, logger)
+	progressRouter.HandleFunc("/video/{id}", progressHandler.VideoProgress).Methods(GET)
+	// later thumbnail generation progress handler may be added
 
 	// cors config
 	allowedOrigins := handlers.AllowedOrigins(allowedCfg)

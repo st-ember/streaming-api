@@ -20,6 +20,7 @@ import (
 	adpHttp "github.com/st-ember/streaming-api/internal/adapter/driving/http"
 	"github.com/st-ember/streaming-api/internal/adapter/driving/worker"
 	"github.com/st-ember/streaming-api/internal/application/jobapp"
+	"github.com/st-ember/streaming-api/internal/application/progressapp"
 	"github.com/st-ember/streaming-api/internal/application/videoapp"
 )
 
@@ -73,6 +74,9 @@ func main() {
 	archiveVideoUC := videoapp.NewArchiveVideoUsecase(uowFactory)
 	listVideoUC := videoapp.NewListVideoUsecase(uowFactory)
 
+	// Progress Usecases
+	videoProgressUC := progressapp.NewVideoProgressUsecase(progressStream, uowFactory)
+
 	videoUCs := videoapp.VideoUsecase{
 		Upload:  uploadVideoUC,
 		GetInfo: getInfoUC,
@@ -89,7 +93,7 @@ func main() {
 	workerPool.Start(ctx)
 
 	// Driving adapter (HTTP)
-	router := adpHttp.NewRouter(videoUCs, cfg.StoragePath, cfg.CorsAllowedOrigin, logger)
+	router := adpHttp.NewRouter(videoUCs, videoProgressUC, cfg.StoragePath, cfg.CorsAllowedOrigin, logger)
 
 	// Server config
 	srv := &http.Server{
