@@ -39,8 +39,8 @@ func (_m *MockTranscoder) EXPECT() *MockTranscoder_Expecter {
 }
 
 // Transcode provides a mock function for the type MockTranscoder
-func (_mock *MockTranscoder) Transcode(ctx context.Context, resourceID string, sourceFilename string) (*transcode.TranscodeOutput, error) {
-	ret := _mock.Called(ctx, resourceID, sourceFilename)
+func (_mock *MockTranscoder) Transcode(ctx context.Context, resourceID string, sourceFilename string, jobID string) (*transcode.TranscodeOutput, error) {
+	ret := _mock.Called(ctx, resourceID, sourceFilename, jobID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Transcode")
@@ -48,18 +48,18 @@ func (_mock *MockTranscoder) Transcode(ctx context.Context, resourceID string, s
 
 	var r0 *transcode.TranscodeOutput
 	var r1 error
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) (*transcode.TranscodeOutput, error)); ok {
-		return returnFunc(ctx, resourceID, sourceFilename)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) (*transcode.TranscodeOutput, error)); ok {
+		return returnFunc(ctx, resourceID, sourceFilename, jobID)
 	}
-	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string) *transcode.TranscodeOutput); ok {
-		r0 = returnFunc(ctx, resourceID, sourceFilename)
+	if returnFunc, ok := ret.Get(0).(func(context.Context, string, string, string) *transcode.TranscodeOutput); ok {
+		r0 = returnFunc(ctx, resourceID, sourceFilename, jobID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*transcode.TranscodeOutput)
 		}
 	}
-	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
-		r1 = returnFunc(ctx, resourceID, sourceFilename)
+	if returnFunc, ok := ret.Get(1).(func(context.Context, string, string, string) error); ok {
+		r1 = returnFunc(ctx, resourceID, sourceFilename, jobID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -75,11 +75,12 @@ type MockTranscoder_Transcode_Call struct {
 //   - ctx context.Context
 //   - resourceID string
 //   - sourceFilename string
-func (_e *MockTranscoder_Expecter) Transcode(ctx interface{}, resourceID interface{}, sourceFilename interface{}) *MockTranscoder_Transcode_Call {
-	return &MockTranscoder_Transcode_Call{Call: _e.mock.On("Transcode", ctx, resourceID, sourceFilename)}
+//   - jobID string
+func (_e *MockTranscoder_Expecter) Transcode(ctx interface{}, resourceID interface{}, sourceFilename interface{}, jobID interface{}) *MockTranscoder_Transcode_Call {
+	return &MockTranscoder_Transcode_Call{Call: _e.mock.On("Transcode", ctx, resourceID, sourceFilename, jobID)}
 }
 
-func (_c *MockTranscoder_Transcode_Call) Run(run func(ctx context.Context, resourceID string, sourceFilename string)) *MockTranscoder_Transcode_Call {
+func (_c *MockTranscoder_Transcode_Call) Run(run func(ctx context.Context, resourceID string, sourceFilename string, jobID string)) *MockTranscoder_Transcode_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -93,10 +94,15 @@ func (_c *MockTranscoder_Transcode_Call) Run(run func(ctx context.Context, resou
 		if args[2] != nil {
 			arg2 = args[2].(string)
 		}
+		var arg3 string
+		if args[3] != nil {
+			arg3 = args[3].(string)
+		}
 		run(
 			arg0,
 			arg1,
 			arg2,
+			arg3,
 		)
 	})
 	return _c
@@ -107,7 +113,7 @@ func (_c *MockTranscoder_Transcode_Call) Return(transcodeOutput *transcode.Trans
 	return _c
 }
 
-func (_c *MockTranscoder_Transcode_Call) RunAndReturn(run func(ctx context.Context, resourceID string, sourceFilename string) (*transcode.TranscodeOutput, error)) *MockTranscoder_Transcode_Call {
+func (_c *MockTranscoder_Transcode_Call) RunAndReturn(run func(ctx context.Context, resourceID string, sourceFilename string, jobID string) (*transcode.TranscodeOutput, error)) *MockTranscoder_Transcode_Call {
 	_c.Call.Return(run)
 	return _c
 }

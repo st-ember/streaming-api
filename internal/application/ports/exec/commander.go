@@ -13,6 +13,7 @@ type Cmd interface {
 	Start() error
 	Wait() error
 	StderrPipe() (io.ReadCloser, error)
+	StdoutPipe() (io.ReadCloser, error)
 }
 
 // Commander defines a port for creating executable commands.

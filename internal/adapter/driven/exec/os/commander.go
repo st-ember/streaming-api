@@ -28,3 +28,4 @@ func (c *osCmd) Run() error                         { return c.cmd.Run() }
 func (c *osCmd) Start() error                       { return c.cmd.Start() }
 func (c *osCmd) Wait() error                        { return c.cmd.Wait() }
 func (c *osCmd) StderrPipe() (io.ReadCloser, error) { return c.cmd.StderrPipe() }
+func (c *osCmd) StdoutPipe() (io.ReadCloser, error) { return c.cmd.StdoutPipe() }

@@ -260,6 +260,61 @@ func (_c *MockCmd_StderrPipe_Call) RunAndReturn(run func() (io.ReadCloser, error
 	return _c
 }
 
+// StdoutPipe provides a mock function for the type MockCmd
+func (_mock *MockCmd) StdoutPipe() (io.ReadCloser, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for StdoutPipe")
+	}
+
+	var r0 io.ReadCloser
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (io.ReadCloser, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() io.ReadCloser); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(io.ReadCloser)
+		}
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockCmd_StdoutPipe_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'StdoutPipe'
+type MockCmd_StdoutPipe_Call struct {
+	*mock.Call
+}
+
+// StdoutPipe is a helper method to define mock.On call
+func (_e *MockCmd_Expecter) StdoutPipe() *MockCmd_StdoutPipe_Call {
+	return &MockCmd_StdoutPipe_Call{Call: _e.mock.On("StdoutPipe")}
+}
+
+func (_c *MockCmd_StdoutPipe_Call) Run(run func()) *MockCmd_StdoutPipe_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockCmd_StdoutPipe_Call) Return(readCloser io.ReadCloser, err error) *MockCmd_StdoutPipe_Call {
+	_c.Call.Return(readCloser, err)
+	return _c
+}
+
+func (_c *MockCmd_StdoutPipe_Call) RunAndReturn(run func() (io.ReadCloser, error)) *MockCmd_StdoutPipe_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Wait provides a mock function for the type MockCmd
 func (_mock *MockCmd) Wait() error {
 	ret := _mock.Called()

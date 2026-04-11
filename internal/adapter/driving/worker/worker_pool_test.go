@@ -53,7 +53,7 @@ func TestWorkerPool_GracefulShutdown(t *testing.T) {
 	}).Return(&jobapp.StartTranscodeJobResult{ResourceID: "res-1", SourceFilename: "in.mp4"}, nil).Once()
 
 	// Minimal transcode success to reach completion
-	transcoder.EXPECT().Transcode(mock.Anything, "res-1", "in.mp4").Return(&transcode.TranscodeOutput{
+	transcoder.EXPECT().Transcode(mock.Anything, "res-1", "in.mp4", testJob.ID).Return(&transcode.TranscodeOutput{
 		Duration:     10 * time.Second,
 		ManifestPath: "/tmp/fake/manifest.m3u8",
 		OutputFiles:  []string{},

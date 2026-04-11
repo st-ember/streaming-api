@@ -49,7 +49,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 			SourceFilename: sourceFile,
 		}, nil)
 
-		transcoder.EXPECT().Transcode(mock.Anything, resourceID, sourceFile).Return(&transcode.TranscodeOutput{
+		transcoder.EXPECT().Transcode(mock.Anything, resourceID, sourceFile, testJob.ID).Return(&transcode.TranscodeOutput{
 			Duration:     10 * time.Second,
 			ManifestPath: filepath.Join(tempDir, manifestName),
 			OutputFiles:  []string{manifestName, segmentName},
@@ -114,7 +114,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 			SourceFilename: sourceFile,
 		}, nil)
 
-		transcoder.EXPECT().Transcode(mock.Anything, resourceID, sourceFile).Return(nil, errors.New("transcode failed"))
+		transcoder.EXPECT().Transcode(mock.Anything, resourceID, sourceFile, testJob.ID).Return(nil, errors.New("transcode failed"))
 		failUC.EXPECT().Execute(mock.Anything, testJob, "transcode failed").Return(nil)
 		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
 		logger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything).Maybe()
@@ -150,7 +150,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 			SourceFilename: sourceFile,
 		}, nil)
 
-		transcoder.EXPECT().Transcode(mock.Anything, resourceID, sourceFile).Return(&transcode.TranscodeOutput{
+		transcoder.EXPECT().Transcode(mock.Anything, resourceID, sourceFile, testJob.ID).Return(&transcode.TranscodeOutput{
 			Duration:     10 * time.Second,
 			ManifestPath: filepath.Join(tempDir, manifestName),
 			OutputFiles:  []string{manifestName},

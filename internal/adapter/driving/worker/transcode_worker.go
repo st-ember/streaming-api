@@ -51,7 +51,7 @@ func (w *TranscodeWorker) Start(ctx context.Context) {
 				return
 			}
 
-			out, err := w.transcoder.Transcode(ctx, resp.ResourceID, resp.SourceFilename)
+			out, err := w.transcoder.Transcode(ctx, resp.ResourceID, resp.SourceFilename, job.ID)
 			if err != nil {
 				// Execute fail transcode job usecase
 				w.failUC.Execute(ctx, job, err.Error())

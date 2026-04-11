@@ -1,6 +1,8 @@
 package transcode
 
-import "time"
+import (
+	"time"
+)
 
 type TranscodeOutput struct {
 	Duration     time.Duration

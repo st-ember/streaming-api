@@ -12,6 +12,7 @@ import (
 	"github.com/st-ember/streaming-api/internal/adapter/driven/config"
 	exec "github.com/st-ember/streaming-api/internal/adapter/driven/exec/os"
 	redislogger "github.com/st-ember/streaming-api/internal/adapter/driven/log/redis_logger"
+	"github.com/st-ember/streaming-api/internal/adapter/driven/progressstream/redisprogressstream"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/redis"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/repo/postgres"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/storage/local"
@@ -52,9 +53,12 @@ func main() {
 		log.Fatalf("start storer: %v", err)
 	}
 
+	// Driven adapter (ProgressStream)
+	progressStream := redisprogressstream.NewRedisProgressStreamer(redis, logger)
+
 	// Driven adapter (Exec Commander)
 	execCommander := exec.NewOsCommander()
-	transcoder := ffmpeg.NewFFMPEGTranscoder(cfg.StoragePath, execCommander)
+	transcoder := ffmpeg.NewFFMPEGTranscoder(cfg.StoragePath, execCommander, progressStream, logger)
 
 	// Job Usecases
 	completeTranscodeUC := jobapp.NewCompleteTranscodeJobUsecase(uowFactory)
