@@ -162,7 +162,7 @@ func TestPipeProgress_InvalidFrameFormat(t *testing.T) {
 	progressPipe := io.NopCloser(strings.NewReader(progressData))
 
 	// Should log error for "frame=abc"
-	mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
+	mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
 
 	// Should process "frame=100" normally
 	mockStreamer.EXPECT().Push(mock.Anything, jobID, mock.MatchedBy(func(p *progress.Progress) bool {
@@ -193,7 +193,7 @@ func TestPipeProgress_NewProgressError(t *testing.T) {
 	progressPipe := io.NopCloser(strings.NewReader("frame=100\n"))
 
 	// Should log error and return immediately
-	mockLogger.EXPECT().Errorf(mock.Anything, "start new progress: %v", mock.Anything).Once()
+	mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, "start new progress: %v", mock.Anything).Once()
 
 	// --- ACT ---
 	transcoder := ffmpeg.NewFFMPEGTranscoder("/tmp", mockCommander, mockStreamer, mockLogger)
@@ -217,7 +217,7 @@ func TestPipeProgress_PushError(t *testing.T) {
 	mockStreamer.EXPECT().Push(mock.Anything, jobID, mock.Anything).Return(expectedErr).Once()
 
 	// Should log error and return
-	mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
+	mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
 
 	// --- ACT ---
 	transcoder := ffmpeg.NewFFMPEGTranscoder("/tmp", mockCommander, mockStreamer, mockLogger)

@@ -20,6 +20,7 @@ import (
 	adpHttp "github.com/st-ember/streaming-api/internal/adapter/driving/http"
 	"github.com/st-ember/streaming-api/internal/adapter/driving/worker"
 	"github.com/st-ember/streaming-api/internal/application/jobapp"
+	logport "github.com/st-ember/streaming-api/internal/application/ports/log"
 	"github.com/st-ember/streaming-api/internal/application/progressapp"
 	"github.com/st-ember/streaming-api/internal/application/videoapp"
 )
@@ -105,16 +106,16 @@ func main() {
 
 	// Start HTTP Server in background
 	go func() {
-		logger.Infof(ctx, "Now listening on :%s\n", cfg.ServerAdd)
+		logger.Infof(ctx, logport.CategoryDefault, "", "Now listening on :%s\n", cfg.ServerAdd)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			stop() // initiate graceful shutdown
-			logger.Errorf(ctx, "listen: %s\n", err)
+			logger.Errorf(ctx, logport.CategoryDefault, "", "listen: %s\n", err)
 		}
 	}()
 
 	// Wait for signal to shut down
 	<-ctx.Done()
-	logger.Infof(ctx, "shutting down gracefully...")
+	logger.Infof(ctx, logport.CategoryDefault, "", "shutting down gracefully...")
 
 	// Shutdown server with timeout
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -131,10 +132,10 @@ func main() {
 
 	select {
 	case <-workerDone:
-		logger.Infof(ctx, "workers exited cleanly")
+		logger.Infof(ctx, logport.CategoryDefault, "", "workers exited cleanly")
 	case <-time.After(cfg.WorkerWaitTime):
-		logger.Warnf(ctx, "timed out waiting for workers; forcing exit")
+		logger.Warnf(ctx, logport.CategoryDefault, "", "timed out waiting for workers; forcing exit")
 	}
 
-	logger.Infof(ctx, "exiting")
+	logger.Infof(ctx, logport.CategoryDefault, "", "exiting")
 }

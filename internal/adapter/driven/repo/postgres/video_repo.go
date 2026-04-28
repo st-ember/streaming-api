@@ -86,7 +86,7 @@ func (r *PostgresVideoRepo) List(ctx context.Context, page int) ([]*video.Video,
 		LIMIT 10 OFFSET $1
 	`
 	rows, err := r.tx.QueryContext(ctx, query, offset)
-	if err != nil {
+	if err != nil { // TODO: fix this along with comment reformat
 		return nil, fmt.Errorf("failed to get riddles at storage layer: %w", err)
 	}
 	defer rows.Close()

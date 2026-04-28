@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/st-ember/streaming-api/internal/application/ports/log"
 )
 
 func (h *VideoHandler) Get(w http.ResponseWriter, r *http.Request) {
@@ -15,8 +16,8 @@ func (h *VideoHandler) Get(w http.ResponseWriter, r *http.Request) {
 	// Execute usecase
 	info, err := h.videoUC.GetInfo.Execute(r.Context(), id)
 	if err != nil {
+		h.logger.Errorf(r.Context(), log.CategoryVideo, id, "find video %s: %v", id, err)
 		http.Error(w, "failed to find video info", http.StatusInternalServerError)
-		h.logger.Errorf(r.Context(), "find video %s: %v", err)
 		return
 	}
 
@@ -41,9 +42,9 @@ func (h *VideoHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 	// Send response
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		h.logger.Errorf(r.Context(), "encode get video info response %v", err)
+		h.logger.Errorf(r.Context(), log.CategoryVideo, info.Video.ID, "encode get video info response %v", err)
 	}
 
 	// Log success
-	h.logger.Infof(r.Context(), "got video %s info", id)
+	h.logger.Infof(r.Context(), log.CategoryVideo, info.Video.ID, "got video %s info", id)
 }

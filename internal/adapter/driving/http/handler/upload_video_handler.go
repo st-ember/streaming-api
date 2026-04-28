@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/st-ember/streaming-api/internal/application/ports/log"
 	"github.com/st-ember/streaming-api/internal/application/videoapp"
 )
 
@@ -13,14 +14,14 @@ func (h *VideoHandler) Upload(w http.ResponseWriter, r *http.Request) {
 
 	// Parse form request
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		h.logger.Errorf(r.Context(), "parse form request: %v", err)
+		h.logger.Errorf(r.Context(), log.CategoryDefault, "", "parse form request: %v", err)
 		http.Error(w, "file too large or invalid form", http.StatusBadRequest)
 		return
 	}
 
 	file, header, err := r.FormFile("video")
 	if err != nil {
-		h.logger.Errorf(r.Context(), "find video file from form request: %v", err)
+		h.logger.Errorf(r.Context(), log.CategoryDefault, "", "find video file from form request: %v", err)
 		http.Error(w, "missing video file", http.StatusBadRequest)
 		return
 	}
@@ -40,7 +41,7 @@ func (h *VideoHandler) Upload(w http.ResponseWriter, r *http.Request) {
 	// Execute usecase
 	result, err := h.videoUC.Upload.Execute(r.Context(), input)
 	if err != nil {
-		h.logger.Errorf(r.Context(), "execute upload video usecase: %v", err)
+		h.logger.Errorf(r.Context(), log.CategoryDefault, "", "execute upload video usecase: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
@@ -59,9 +60,9 @@ func (h *VideoHandler) Upload(w http.ResponseWriter, r *http.Request) {
 
 	// Send response
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		h.logger.Errorf(r.Context(), "encode upload video response: %v", err)
+		h.logger.Errorf(r.Context(), log.CategoryDefault, "", "encode upload video response: %v", err)
 	}
 
 	// Log success
-	h.logger.Infof(r.Context(), "uploaded video %s", result.Video.ID)
+	h.logger.Infof(r.Context(), log.CategoryDefault, "", "uploaded video %s", result.Video.ID)
 }

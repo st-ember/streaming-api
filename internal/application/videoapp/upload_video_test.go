@@ -357,7 +357,7 @@ func TestUploadVideo_CleanupFailsAfterRepoSaveFails(t *testing.T) {
 	mockJobRepo.EXPECT().Save(mock.Anything, mock.AnythingOfType("*job.Job")).Return(dbErr).Once()
 
 	// Logger expectations
-	mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
+	mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
 
 	// Mock input
 	input := videoapp.UploadVideoInput{

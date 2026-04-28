@@ -197,7 +197,7 @@ func (w *FFMPEGTranscoder) PipeProgress(ctx context.Context, jobID string, total
 	defer progressPipe.Close()
 	prg, err := progress.NewProgress(totalFrames)
 	if err != nil {
-		w.logger.Errorf(ctx, "start new progress: %v", err)
+		w.logger.Errorf(ctx, log.CategoryJob, jobID, "start new progress: %v", err)
 		return
 	}
 
@@ -207,16 +207,16 @@ func (w *FFMPEGTranscoder) PipeProgress(ctx context.Context, jobID string, total
 		if frameStr, ok := strings.CutPrefix(strings.TrimSpace(line), "frame="); ok {
 			frameInt, err := strconv.ParseInt(frameStr, 10, 64)
 			if err != nil {
-				w.logger.Errorf(ctx, "parse current frames: %v", err)
+				w.logger.Errorf(ctx, log.CategoryJob, jobID, "parse current frames: %v", err)
 				continue
 			}
 
 			if err := prg.UpdateCurrentFrames(frameInt); err != nil {
-				w.logger.Errorf(ctx, "update current frames: %v", err)
+				w.logger.Errorf(ctx, log.CategoryJob, jobID, "update current frames: %v", err)
 				return
 			}
 			if err := w.streamer.Push(ctx, jobID, prg); err != nil {
-				w.logger.Errorf(ctx, "push progress %v", err)
+				w.logger.Errorf(ctx, log.CategoryJob, jobID, "push progress %v", err)
 				return
 			}
 		}
@@ -224,16 +224,16 @@ func (w *FFMPEGTranscoder) PipeProgress(ctx context.Context, jobID string, total
 
 	if err := scanner.Err(); err != nil {
 		if err := prg.MarkAsError(); err != nil {
-			w.logger.Errorf(ctx, "mark progress as error: %v", err)
+			w.logger.Errorf(ctx, log.CategoryJob, jobID, "mark progress as error: %v", err)
 		}
 	} else {
 		if err := prg.End(); err != nil {
-			w.logger.Errorf(ctx, "mark progress as ended: %v", err)
+			w.logger.Errorf(ctx, log.CategoryJob, jobID, "mark progress as ended: %v", err)
 		}
 	}
 
 	if err := w.streamer.Push(ctx, jobID, prg); err != nil {
-		w.logger.Errorf(ctx, "push progress %v", err)
+		w.logger.Errorf(ctx, log.CategoryJob, jobID, "push progress %v", err)
 		return
 	}
 }

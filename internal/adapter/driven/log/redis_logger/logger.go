@@ -2,7 +2,9 @@ package redislogger
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 
 	logPort "github.com/st-ember/streaming-api/internal/application/ports/log"
 
@@ -23,17 +25,53 @@ const (
 	infoLogChannel = "logs:streaming-api:info"
 )
 
-func (l *RedisLogger) Errorf(ctx context.Context, format string, args ...any) {
+func (l *RedisLogger) Errorf(ctx context.Context, category logPort.LogCategory, sourceID string, format string, args ...any) {
 	msg := fmt.Sprintf(format, args...)
-	l.Client.Rdb.Publish(ctx, errLogChannel, msg)
+	lMsg := LogMessage{
+		Category: category.String(),
+		Level:    LevelError.String(),
+		Message:  msg,
+		SourceID: sourceID,
+	}
+
+	b, err := json.Marshal(lMsg)
+	if err != nil {
+		log.Printf("ERROR: failed to marshal log message")
+	}
+
+	l.Client.Rdb.Publish(ctx, errLogChannel, b)
 }
 
-func (l *RedisLogger) Warnf(ctx context.Context, format string, args ...any) {
+func (l *RedisLogger) Warnf(ctx context.Context, category logPort.LogCategory, sourceID string, format string, args ...any) {
 	msg := fmt.Sprintf(format, args...)
-	l.Client.Rdb.Publish(ctx, warnLogChannel, msg)
+	lMsg := LogMessage{
+		Category: category.String(),
+		Level:    LevelWarn.String(),
+		Message:  msg,
+		SourceID: sourceID,
+	}
+
+	b, err := json.Marshal(lMsg)
+	if err != nil {
+		log.Printf("ERROR: failed to marshal log message")
+	}
+
+	l.Client.Rdb.Publish(ctx, warnLogChannel, b)
 }
 
-func (l *RedisLogger) Infof(ctx context.Context, format string, args ...any) {
+func (l *RedisLogger) Infof(ctx context.Context, category logPort.LogCategory, sourceID string, format string, args ...any) {
 	msg := fmt.Sprintf(format, args...)
-	l.Client.Rdb.Publish(ctx, infoLogChannel, msg)
+	lMsg := LogMessage{
+		Category: category.String(),
+		Level:    LevelInfo.String(),
+		Message:  msg,
+		SourceID: sourceID,
+	}
+
+	b, err := json.Marshal(lMsg)
+	if err != nil {
+		log.Printf("ERROR: failed to marshal log message")
+	}
+
+	l.Client.Rdb.Publish(ctx, infoLogChannel, b)
 }

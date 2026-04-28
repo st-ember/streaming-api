@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/st-ember/streaming-api/internal/application/ports/log"
 )
 
 func (h *VideoHandler) Archive(w http.ResponseWriter, r *http.Request) {
@@ -13,7 +14,7 @@ func (h *VideoHandler) Archive(w http.ResponseWriter, r *http.Request) {
 
 	// Execute usecase
 	if err := h.videoUC.Archive.Execute(r.Context(), id); err != nil {
-		h.logger.Errorf(r.Context(), "archive video %s: %v", err)
+		h.logger.Errorf(r.Context(), log.CategoryVideo, id, "archive video %s: %v", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
@@ -22,5 +23,5 @@ func (h *VideoHandler) Archive(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	// Log success
-	h.logger.Infof(r.Context(), "archived video %s", id)
+	h.logger.Infof(r.Context(), log.CategoryVideo, id, "archived video %s", id)
 }

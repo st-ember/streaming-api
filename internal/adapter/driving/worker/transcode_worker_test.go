@@ -59,7 +59,7 @@ func TestTranscodeWorker_Start(t *testing.T) {
 		storer.EXPECT().Save(mock.Anything, resourceID, segmentName, mock.Anything).Return(nil)
 
 		completeUC.EXPECT().Execute(mock.Anything, testJob, manifestName, 10*time.Second).Return(nil)
-		logger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything).Maybe()
+		logger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Maybe()
 
 		go w.Start(t.Context())
 		jobCh <- testJob
@@ -84,8 +84,8 @@ func TestTranscodeWorker_Start(t *testing.T) {
 		testJob, _ := job.NewJob("job-1", "video-1", job.TypeTranscode)
 
 		startUC.EXPECT().Execute(mock.Anything, testJob).Return(nil, errors.New("start failed"))
-		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
-		logger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything).Maybe()
+		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
+		logger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Maybe()
 
 		go w.Start(t.Context())
 		jobCh <- testJob
@@ -116,8 +116,8 @@ func TestTranscodeWorker_Start(t *testing.T) {
 
 		transcoder.EXPECT().Transcode(mock.Anything, resourceID, sourceFile, testJob.ID).Return(nil, errors.New("transcode failed"))
 		failUC.EXPECT().Execute(mock.Anything, testJob, "transcode failed").Return(nil)
-		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
-		logger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything).Maybe()
+		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
+		logger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Maybe()
 
 		go w.Start(t.Context())
 		jobCh <- testJob
@@ -158,8 +158,8 @@ func TestTranscodeWorker_Start(t *testing.T) {
 
 		storer.EXPECT().Save(mock.Anything, resourceID, manifestName, mock.Anything).Return(errors.New("save failed"))
 		failUC.EXPECT().Execute(mock.Anything, testJob, "failed to save transcoded output").Return(nil)
-		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
-		logger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything).Maybe()
+		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
+		logger.EXPECT().Infof(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Maybe()
 
 		go w.Start(t.Context())
 		jobCh <- testJob

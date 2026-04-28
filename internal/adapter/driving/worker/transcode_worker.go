@@ -47,7 +47,7 @@ func (w *TranscodeWorker) Start(ctx context.Context) {
 		func() {
 			resp, err := w.startUC.Execute(ctx, job)
 			if err != nil {
-				w.logger.Errorf(ctx, "start job %s: %v", job.ID, err)
+				w.logger.Errorf(ctx, log.CategoryJob, job.ID, "start job %s: %v", job.ID, err)
 				return
 			}
 
@@ -55,7 +55,7 @@ func (w *TranscodeWorker) Start(ctx context.Context) {
 			if err != nil {
 				// Execute fail transcode job usecase
 				w.failUC.Execute(ctx, job, err.Error())
-				w.logger.Errorf(ctx, "transcode job %s: %v", job.ID, err)
+				w.logger.Errorf(ctx, log.CategoryJob, job.ID, "transcode job %s: %v", job.ID, err)
 				return
 			}
 
@@ -87,17 +87,17 @@ func (w *TranscodeWorker) Start(ctx context.Context) {
 				}
 
 				// Log successful move
-				w.logger.Infof(ctx, "deleted and moved temp files to permanent storage for video %s", resp.ResourceID)
+				w.logger.Infof(ctx, log.CategoryJob, resp.ResourceID, "deleted and moved temp files to permanent storage for video %s", resp.ResourceID)
 			}
 
 			if err := w.completeUC.Execute(ctx, job, filepath.Base(out.ManifestPath), out.Duration); err != nil {
-				w.logger.Errorf(ctx, "complete job %s: %v", job.ID, err)
+				w.logger.Errorf(ctx, log.CategoryJob, job.ID, "complete job %s: %v", job.ID, err)
 			}
 
 			// Log successful job completion
-			w.logger.Infof(ctx, "completed job %s", job.ID)
+			w.logger.Infof(ctx, log.CategoryJob, job.ID, "completed job %s", job.ID)
 		}()
 	}
 
-	w.logger.Infof(ctx, "worker finished draining queue and is shutting down")
+	w.logger.Infof(ctx, log.CategoryDefault, "", "worker finished draining queue and is shutting down")
 }

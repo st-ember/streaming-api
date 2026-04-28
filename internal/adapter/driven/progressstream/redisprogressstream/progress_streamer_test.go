@@ -78,7 +78,7 @@ func TestRedisProgressStreamer(t *testing.T) {
 		require.NoError(t, err)
 
 		// Expect an error log for the invalid JSON
-		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
+		logger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
 
 		// Manually publish invalid JSON directly to Redis
 		channelName := fmt.Sprintf("video:%s:progress", jobID)

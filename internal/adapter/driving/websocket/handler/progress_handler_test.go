@@ -81,7 +81,7 @@ func TestProgressHandler(t *testing.T) {
 
 		videoID := "non-existent-id"
 		mockUC.EXPECT().Execute(mock.Anything, videoID).Return(nil, sql.ErrNoRows).Once()
-		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
 
 		r := mux.NewRouter()
 		r.HandleFunc("/videos/{id}/progress", progressHandler.VideoProgress)
@@ -109,7 +109,7 @@ func TestProgressHandler(t *testing.T) {
 
 		videoID := "error-id"
 		mockUC.EXPECT().Execute(mock.Anything, videoID).Return(nil, errors.New("db error")).Once()
-		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything).Once()
+		mockLogger.EXPECT().Errorf(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Once()
 
 		r := mux.NewRouter()
 		r.HandleFunc("/videos/{id}/progress", progressHandler.VideoProgress)

@@ -38,7 +38,7 @@ func (h *ProgressHandler) VideoProgress(w http.ResponseWriter, r *http.Request) 
 
 	prgCh, err := h.videoProgressUC.Execute(r.Context(), id)
 	if err != nil {
-		h.logger.Errorf(r.Context(), "execute video progress usecase: %v", err)
+		h.logger.Errorf(r.Context(), log.CategoryDefault, "", "execute video progress usecase: %v", err)
 		if errors.Is(err, sql.ErrNoRows) {
 			http.Error(w, "video not found", http.StatusNotFound)
 		} else {
@@ -49,7 +49,7 @@ func (h *ProgressHandler) VideoProgress(w http.ResponseWriter, r *http.Request) 
 
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		h.logger.Errorf(r.Context(), "upgrade to websocket connection: %v", err)
+		h.logger.Errorf(r.Context(), log.CategoryDefault, "", "upgrade to websocket connection: %v", err)
 		return
 	}
 	defer conn.Close()
@@ -64,7 +64,7 @@ func (h *ProgressHandler) VideoProgress(w http.ResponseWriter, r *http.Request) 
 			}
 
 			if err := conn.WriteJSON(prg); err != nil {
-				h.logger.Errorf(r.Context(), "write json to websocket connection: %v", err)
+				h.logger.Errorf(r.Context(), log.CategoryDefault, "", "write json to websocket connection: %v", err)
 				return
 			}
 

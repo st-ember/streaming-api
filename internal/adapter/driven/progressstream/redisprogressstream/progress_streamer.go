@@ -67,7 +67,7 @@ func (p *RedisProgressStreamer) Read(ctx context.Context, jobID string) (<-chan 
 
 				var prg progress.Progress
 				if err := json.Unmarshal([]byte(msg.Payload), &prg); err != nil {
-					p.logger.Errorf(ctx, "unmarshal progress for job %s: %v", jobID, err)
+					p.logger.Errorf(ctx, log.CategoryJob, jobID, "unmarshal progress for job %s: %v", jobID, err)
 					continue
 				}
 
