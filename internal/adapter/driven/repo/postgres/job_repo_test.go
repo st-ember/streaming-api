@@ -1,10 +1,11 @@
-package postgres
+package postgres_test
 
 import (
 	"database/sql"
 	"testing"
 	"time"
 
+	"github.com/st-ember/streaming-api/internal/adapter/driven/repo/postgres"
 	"github.com/st-ember/streaming-api/internal/domain/job"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +15,7 @@ func TestPostgresJobRepo_Save_Insert(t *testing.T) {
 	tx := beginTx(t)
 
 	// ARRANGE
-	repo := NewPostgresJobRepo(tx)
+	repo := postgres.NewPostgresJobRepo(tx)
 	newJob, err := job.NewJob("job-id-1", "video-id-1", job.TypeTranscode)
 	require.NoError(t, err)
 
@@ -36,7 +37,7 @@ func TestPostgresJobRepo_Save_Update(t *testing.T) {
 	tx := beginTx(t)
 
 	// ARRANGE
-	repo := NewPostgresJobRepo(tx)
+	repo := postgres.NewPostgresJobRepo(tx)
 
 	// First, insert a job.
 	originalJob, err := job.NewJob("job-id-1", "video-id-1", job.TypeTranscode)
@@ -70,7 +71,7 @@ func TestPostgresJobRepo_FindNextPendingTranscodeJob_Success(t *testing.T) {
 	tx := beginTx(t)
 
 	// ARRANGE
-	repo := NewPostgresJobRepo(tx)
+	repo := postgres.NewPostgresJobRepo(tx)
 
 	// Insert some test jobs directly into the database.
 	// This job should NOT be picked.
@@ -108,7 +109,7 @@ func TestPostgresJobRepo_FindNextPendingTranscodeJob_NotFound(t *testing.T) {
 	tx := beginTx(t)
 
 	// ARRANGE
-	repo := NewPostgresJobRepo(tx)
+	repo := postgres.NewPostgresJobRepo(tx)
 	// Insert jobs, but none that are pending transcodes.
 	_, err := tx.Exec(`INSERT INTO jobs (id, video_id, type, status, created_at, updated_at) 
 		VALUES ('job-1', 'vid-1', 'transcode', 'running', $1, $1)`, time.Now())

@@ -1,9 +1,10 @@
-package postgres
+package postgres_test
 
 import (
 	"database/sql"
 	"testing"
 
+	"github.com/st-ember/streaming-api/internal/adapter/driven/repo/postgres"
 	"github.com/st-ember/streaming-api/internal/domain/job"
 	"github.com/st-ember/streaming-api/internal/domain/video"
 	"github.com/stretchr/testify/require"
@@ -14,7 +15,7 @@ func TestUnitOfWork_Commit(t *testing.T) {
 	// ARRANGE
 	// Note: For UoW tests, we need the factory which holds the main DB pool,
 	// not just a single transaction from beginTx.
-	uowFactory := NewPostgresUnitOfWorkFactory(testDB)
+	uowFactory := postgres.NewPostgresUnitOfWorkFactory(TestDB)
 
 	// Create a video entity to save.
 	newVideo, err := video.NewVideo("uow-video-1", "Commit Test", "Desc", "commit.mp4", "uow-resource-1")
@@ -38,7 +39,7 @@ func TestUnitOfWork_Commit(t *testing.T) {
 	// Verify that the data was actually committed to the database.
 	// We do this by starting a NEW, separate query against the main connection pool.
 	var title string
-	err = testDB.QueryRow("SELECT title FROM videos WHERE id = $1", newVideo.ID).Scan(&title)
+	err = TestDB.QueryRow("SELECT title FROM videos WHERE id = $1", newVideo.ID).Scan(&title)
 	require.NoError(t, err, "data should be present in the DB after commit")
 	require.Equal(t, "Commit Test", title)
 }
@@ -46,7 +47,7 @@ func TestUnitOfWork_Commit(t *testing.T) {
 func TestUnitOfWork_Rollback(t *testing.T) {
 	t.Parallel()
 	// ARRANGE
-	uowFactory := NewPostgresUnitOfWorkFactory(testDB)
+	uowFactory := postgres.NewPostgresUnitOfWorkFactory(TestDB)
 	ctx := t.Context() // Use t.Context() for calls within the test logic.
 
 	newVideo, err := video.NewVideo("uow-video-2", "Rollback Test", "Desc", "rollback.mp4", "uow-resource-2")
@@ -69,14 +70,14 @@ func TestUnitOfWork_Rollback(t *testing.T) {
 	// Verify that the data was NOT committed to the database.
 	// This query against the main connection pool should find nothing.
 	var title string
-	err = testDB.QueryRow("SELECT title FROM videos WHERE id = $1", newVideo.ID).Scan(&title)
+	err = TestDB.QueryRow("SELECT title FROM videos WHERE id = $1", newVideo.ID).Scan(&title)
 	require.ErrorIs(t, err, sql.ErrNoRows, "data should NOT be present in the DB after rollback")
 }
 
 func TestUnitOfWork_RepoIsTransactional(t *testing.T) {
 	t.Parallel()
 	// ARRANGE
-	uowFactory := NewPostgresUnitOfWorkFactory(testDB)
+	uowFactory := postgres.NewPostgresUnitOfWorkFactory(TestDB)
 	ctx := t.Context()
 
 	newVideo, err := video.NewVideo("uow-video-3", "TX Test", "Desc", "tx.mp4", "uow-resource-3")
@@ -108,10 +109,10 @@ func TestUnitOfWork_RepoIsTransactional(t *testing.T) {
 
 	// Verify that BOTH saves were rolled back, proving they were in the same transaction.
 	var videoID string
-	err = testDB.QueryRow("SELECT id FROM videos WHERE id = $1", newVideo.ID).Scan(&videoID)
+	err = TestDB.QueryRow("SELECT id FROM videos WHERE id = $1", newVideo.ID).Scan(&videoID)
 	require.ErrorIs(t, err, sql.ErrNoRows, "video should have been rolled back")
 
 	var jobID string
-	err = testDB.QueryRow("SELECT id FROM jobs WHERE id = $1", newJob.ID).Scan(&jobID)
+	err = TestDB.QueryRow("SELECT id FROM jobs WHERE id = $1", newJob.ID).Scan(&jobID)
 	require.ErrorIs(t, err, sql.ErrNoRows, "job should have been rolled back")
 }

@@ -23,6 +23,7 @@ import (
 	logport "github.com/st-ember/streaming-api/internal/application/ports/log"
 	"github.com/st-ember/streaming-api/internal/application/progressapp"
 	"github.com/st-ember/streaming-api/internal/application/videoapp"
+	"github.com/st-ember/streaming-api/internal/domain/auth"
 )
 
 func main() {
@@ -41,6 +42,13 @@ func main() {
 	defer db.Conn.Close()
 
 	uowFactory := postgres.NewPostgresUnitOfWorkFactory(db.Conn)
+	authRepo := postgres.NewPostgresAuthRepo(db.Conn)
+
+	// Sync db permissions
+	slugs := auth.AllPermissions()
+	if err := authRepo.SyncPermissions(ctx, slugs); err != nil {
+		log.Fatalf("sync permissions: %v", err)
+	}
 
 	// Driven adapter (Logger)
 	redis, err := redis.NewClient(cfg.RedisAddrs, cfg.RedisPassword)

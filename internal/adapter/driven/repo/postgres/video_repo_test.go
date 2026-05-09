@@ -1,10 +1,11 @@
-package postgres
+package postgres_test
 
 import (
 	"database/sql"
 	"testing"
 	"time"
 
+	"github.com/st-ember/streaming-api/internal/adapter/driven/repo/postgres"
 	"github.com/st-ember/streaming-api/internal/domain/video"
 	"github.com/stretchr/testify/require"
 )
@@ -14,7 +15,7 @@ func TestPostgresVideoRepo_Save_Insert(t *testing.T) {
 	tx := beginTx(t)
 
 	// ARRANGE
-	repo := NewPostgresVideoRepo(tx)
+	repo := postgres.NewPostgresVideoRepo(tx)
 	newVideo, err := video.NewVideo("video-id-1", "Test Title", "Test Desc", "test.mp4", "resource-1")
 	require.NoError(t, err)
 
@@ -36,7 +37,7 @@ func TestPostgresVideoRepo_Save_Update(t *testing.T) {
 	tx := beginTx(t)
 
 	// ARRANGE
-	repo := NewPostgresVideoRepo(tx)
+	repo := postgres.NewPostgresVideoRepo(tx)
 
 	// First, insert a video.
 	originalVideo, err := video.NewVideo("video-id-1", "Original Title", "Original Desc", "test.mp4", "resource-1")
@@ -71,7 +72,7 @@ func TestPostgresVideoRepo_FindByID_Success(t *testing.T) {
 	tx := beginTx(t)
 
 	// ARRANGE
-	repo := NewPostgresVideoRepo(tx)
+	repo := postgres.NewPostgresVideoRepo(tx)
 	// Insert a video to be found.
 	videoToFind, err := video.NewVideo("video-id-2", "Find Me", "Desc", "find.mp4", "resource-2")
 	require.NoError(t, err)
@@ -93,7 +94,7 @@ func TestPostgresVideoRepo_FindByID_NotFound(t *testing.T) {
 	tx := beginTx(t)
 
 	// ARRANGE
-	repo := NewPostgresVideoRepo(tx)
+	repo := postgres.NewPostgresVideoRepo(tx)
 
 	// ACT
 	// Try to find a video that does not exist.
