@@ -6,6 +6,7 @@ type UnitOfWork interface {
 	// Repositories returns the transactional repositories
 	VideoRepo() VideoRepo
 	JobRepo() JobRepo
+	AuthRepo() AuthRepo
 
 	// Commit finalizes the transaction
 	Commit(ctx context.Context) error

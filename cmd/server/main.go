@@ -11,14 +11,17 @@ import (
 
 	"github.com/st-ember/streaming-api/internal/adapter/driven/config"
 	exec "github.com/st-ember/streaming-api/internal/adapter/driven/exec/os"
+	"github.com/st-ember/streaming-api/internal/adapter/driven/hash"
 	redislogger "github.com/st-ember/streaming-api/internal/adapter/driven/log/redis_logger"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/progressstream/redisprogressstream"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/redis"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/repo/postgres"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/storage/local"
+	"github.com/st-ember/streaming-api/internal/adapter/driven/token"
 	"github.com/st-ember/streaming-api/internal/adapter/driven/transcode/ffmpeg"
 	adpHttp "github.com/st-ember/streaming-api/internal/adapter/driving/http"
 	"github.com/st-ember/streaming-api/internal/adapter/driving/worker"
+	"github.com/st-ember/streaming-api/internal/application/authapp"
 	"github.com/st-ember/streaming-api/internal/application/jobapp"
 	logport "github.com/st-ember/streaming-api/internal/application/ports/log"
 	"github.com/st-ember/streaming-api/internal/application/progressapp"
@@ -45,8 +48,8 @@ func main() {
 	authRepo := postgres.NewPostgresAuthRepo(db.Conn)
 
 	// Sync db permissions
-	slugs := auth.AllPermissions()
-	if err := authRepo.SyncPermissions(ctx, slugs); err != nil {
+	permissions := auth.AllPermissions()
+	if err := authRepo.SyncPermissions(ctx, permissions); err != nil {
 		log.Fatalf("sync permissions: %v", err)
 	}
 
@@ -70,6 +73,12 @@ func main() {
 	execCommander := exec.NewOsCommander()
 	transcoder := ffmpeg.NewFFMPEGTranscoder(cfg.StoragePath, execCommander, progressStream, logger)
 
+	// Driven adapter (Hasher)
+	hasher := hash.NewArgon2Hasher()
+
+	// Driven adapter (Token)
+	token := token.NewJwtToken(cfg.AccessSecret, cfg.RefreshSecret)
+
 	// Job Usecases
 	completeTranscodeUC := jobapp.NewCompleteTranscodeJobUsecase(uowFactory)
 	failTranscodeUC := jobapp.NewFailTranscodeJobUsecase(uowFactory)
@@ -83,9 +92,6 @@ func main() {
 	archiveVideoUC := videoapp.NewArchiveVideoUsecase(uowFactory)
 	listVideoUC := videoapp.NewListVideoUsecase(uowFactory)
 
-	// Progress Usecases
-	videoProgressUC := progressapp.NewVideoProgressUsecase(progressStream, uowFactory)
-
 	videoUCs := videoapp.VideoUsecase{
 		Upload:  uploadVideoUC,
 		GetInfo: getInfoUC,
@@ -93,6 +99,13 @@ func main() {
 		Archive: archiveVideoUC,
 		List:    listVideoUC,
 	}
+
+	// Progress Usecase
+	videoProgressUC := progressapp.NewVideoProgressUsecase(progressStream, uowFactory)
+
+	// Auth Usecases
+	signupUC := authapp.NewSignupUsecase(uowFactory, authRepo, hasher, token)
+	loginUC := authapp.NewLoginUsecase(authRepo, hasher, token)
 
 	// Driving adapter (Worker)
 	workerPool := worker.NewWorkerPool(
@@ -102,7 +115,11 @@ func main() {
 	workerPool.Start(ctx)
 
 	// Driving adapter (HTTP)
-	router := adpHttp.NewRouter(videoUCs, videoProgressUC, cfg.StoragePath, cfg.CorsAllowedOrigin, logger)
+	router := adpHttp.NewRouter(
+		videoUCs, videoProgressUC, loginUC, signupUC,
+		cfg.StoragePath, cfg.CorsAllowedOrigin,
+		logger, token,
+	)
 
 	// Server config
 	srv := &http.Server{

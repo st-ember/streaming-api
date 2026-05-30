@@ -17,6 +17,8 @@ type Config struct {
 	CorsAllowedOrigin []string
 	RedisAddrs        []string
 	RedisPassword     string
+	AccessSecret      []byte
+	RefreshSecret     []byte
 }
 
 func Load() *Config {
@@ -30,6 +32,8 @@ func Load() *Config {
 		CorsAllowedOrigin: getEnvStringSlice("CORS_ALLOWED_STRING", []string{"*"}),
 		RedisAddrs:        getEnvStringSlice("REDIS_ADDRS", []string{""}),
 		RedisPassword:     getEnv("REDIS_PASSWORD", ""),
+		AccessSecret:      getEnvByteSlice("ACCESS_SECRET", []byte{}),
+		RefreshSecret:     getEnvByteSlice("REFRESH_SECRET", []byte{}),
 	}
 }
 
@@ -58,4 +62,13 @@ func getEnvStringSlice(key string, fallback []string) []string {
 	}
 
 	return strings.Split(value, ",")
+}
+
+func getEnvByteSlice(key string, fallback []byte) []byte {
+	value, ok := os.LookupEnv(key)
+	if !ok {
+		return fallback
+	}
+
+	return []byte(value)
 }

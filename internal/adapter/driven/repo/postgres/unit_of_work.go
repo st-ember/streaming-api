@@ -45,6 +45,11 @@ func (u *PostgresUnitOfWork) JobRepo() repo.JobRepo {
 	return NewPostgresJobRepo(u.tx)
 }
 
+// JobRepo returns a new PostgresJobRepo that uses the UoW's transaction.
+func (u *PostgresUnitOfWork) AuthRepo() repo.AuthRepo {
+	return NewPostgresAuthRepoWithTransaction(u.tx)
+}
+
 // Commit finalizes the transaction
 func (u *PostgresUnitOfWork) Commit(ctx context.Context) error {
 	return u.tx.Commit()

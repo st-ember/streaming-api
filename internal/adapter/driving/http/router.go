@@ -7,7 +7,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/st-ember/streaming-api/internal/adapter/driving/http/handler"
 	wshandler "github.com/st-ember/streaming-api/internal/adapter/driving/websocket/handler"
+	"github.com/st-ember/streaming-api/internal/application/authapp"
 	"github.com/st-ember/streaming-api/internal/application/ports/log"
+	"github.com/st-ember/streaming-api/internal/application/ports/token"
 	"github.com/st-ember/streaming-api/internal/application/progressapp"
 	"github.com/st-ember/streaming-api/internal/application/videoapp"
 )
@@ -27,9 +29,12 @@ var (
 func NewRouter(
 	videoUC videoapp.VideoUsecase,
 	videoProgressUC progressapp.VideoProgressUsecase,
+	loginUC authapp.LoginUsecase,
+	signupUC authapp.SignupUsecase,
 	storagePath string,
 	allowedCfg []string,
 	logger log.Logger,
+	token token.Token,
 ) *Router {
 	r := mux.NewRouter()
 
@@ -54,6 +59,12 @@ func NewRouter(
 	progressHandler := wshandler.NewProgressHandler(videoProgressUC, logger)
 	progressRouter.HandleFunc("/video/{id}", progressHandler.VideoProgress).Methods(GET)
 	// later thumbnail generation progress handler may be added
+
+	// auth
+	authRouter := api.PathPrefix("/auth").Subrouter()
+	authH := handler.NewAuthHandler(loginUC, signupUC, logger)
+	authRouter.HandleFunc("/login", authH.Login)
+	authRouter.HandleFunc("/signup", authH.Signup)
 
 	// cors config
 	allowedOrigins := handlers.AllowedOrigins(allowedCfg)

@@ -6,6 +6,7 @@ const (
 	CategoryDefault LogCategory = "default"
 	CategoryVideo   LogCategory = "video"
 	CategoryJob     LogCategory = "job"
+	CategoryAuth    LogCategory = "auth"
 )
 
 func (lc LogCategory) String() string {

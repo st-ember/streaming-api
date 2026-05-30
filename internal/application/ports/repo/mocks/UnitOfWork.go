@@ -38,6 +38,52 @@ func (_m *MockUnitOfWork) EXPECT() *MockUnitOfWork_Expecter {
 	return &MockUnitOfWork_Expecter{mock: &_m.Mock}
 }
 
+// AuthRepo provides a mock function for the type MockUnitOfWork
+func (_mock *MockUnitOfWork) AuthRepo() repo.AuthRepo {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for AuthRepo")
+	}
+
+	var r0 repo.AuthRepo
+	if returnFunc, ok := ret.Get(0).(func() repo.AuthRepo); ok {
+		r0 = returnFunc()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(repo.AuthRepo)
+		}
+	}
+	return r0
+}
+
+// MockUnitOfWork_AuthRepo_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'AuthRepo'
+type MockUnitOfWork_AuthRepo_Call struct {
+	*mock.Call
+}
+
+// AuthRepo is a helper method to define mock.On call
+func (_e *MockUnitOfWork_Expecter) AuthRepo() *MockUnitOfWork_AuthRepo_Call {
+	return &MockUnitOfWork_AuthRepo_Call{Call: _e.mock.On("AuthRepo")}
+}
+
+func (_c *MockUnitOfWork_AuthRepo_Call) Run(run func()) *MockUnitOfWork_AuthRepo_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockUnitOfWork_AuthRepo_Call) Return(authRepo repo.AuthRepo) *MockUnitOfWork_AuthRepo_Call {
+	_c.Call.Return(authRepo)
+	return _c
+}
+
+func (_c *MockUnitOfWork_AuthRepo_Call) RunAndReturn(run func() repo.AuthRepo) *MockUnitOfWork_AuthRepo_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Close provides a mock function for the type MockUnitOfWork
 func (_mock *MockUnitOfWork) Close(ctx context.Context) error {
 	ret := _mock.Called(ctx)
