@@ -31,6 +31,9 @@ packages:
   github.com/st-ember/streaming-api/internal/application/ports/transcode:
     config:
       all: true
+  github.com/st-ember/streaming-api/internal/application/ports/token:
+    config:
+      all: true
   github.com/st-ember/streaming-api/internal/application/jobapp:
     config:
       all: true
